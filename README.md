@@ -1,11 +1,11 @@
 # bromite-userscripts
-This is a repository that hosts [User Scripts for Bromite](https://github.com/bromite/bromite/wiki/UserScripts), and Android browser.
+This is a repository that hosts [User Scripts for Bromite](https://github.com/bromite/bromite/wiki/UserScripts), an Android browser.
 
 ### Scripts
 Here scripts are sorted by category. See below on how to install them into your browser.
 
 #### Ad Blockers
-Bromite has a built-in ad blocker, but some sites are very good at bypassing it. We can improve blocking on these sites using scripts.
+Bromite has a built-in ad blocker (also see my [Bromite ad blocking project](https://github.com/xarantolus/filtrite)), but some sites are very good at bypassing it. We can improve blocking on these sites using scripts.
 
 * [**Twitter**](block/twitter.user.js?raw=true): block ads on Twitter (sponsored tweets and sponsored trends)
 
