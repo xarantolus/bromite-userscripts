@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Ad Block: Twitter
-// @namespace    twitter
-// @version      0.0.3
+// @namespace    010.one
+// @version      0.0.4
 // @description  Removes sponsored tweets on Twitter
 // @author       xarantolus
 // @match        *://twitter.com/*
@@ -10,8 +10,11 @@
 // @run-at       document-end
 // ==/UserScript==
 
+var log = function (...data) {
+    console.log("[Twitter Ad Block]:", ...data);
+}
 
-window.addEventListener('load', function () {
+var scriptFun = function () {
     // Array source: https://github.com/jodylecompte/twitter-adblock-chrome (MIT Licensed)
     // The .filter at the end is there because of a Bromite bug (https://github.com/bromite/bromite/issues/792#issuecomment-974766145)
     // that replaces multi-byte characters with empty characters. An empty entry would lead to all trends being filtered out, which is not what we want 
@@ -126,13 +129,13 @@ window.addEventListener('load', function () {
             return;
         }
         element.remove();
-        console.log("Removed an ad tweet");
+        log("Removed an ad tweet");
     });
 
     // Whenever a banner ad is added at the top of the "trending" section, we remove it
     ready('[data-testid="eventHero"]', function (element) {
         element.remove();
-        console.log("Removed trends banner ad");
+        log("Removed trends banner ad");
     });
 
     // We also want to remove sponsored trends
@@ -140,7 +143,17 @@ window.addEventListener('load', function () {
         var it = element.innerText;
         if (sponsoredTranslations.some(x => it.includes(x))) {
             element.remove();
-            console.log("Removed sponsored ad trend " + element.innerText);
+            log("Removed sponsored ad trend " + element.innerText);
         }
     });
-});
+
+    log("All listeners attached");
+};
+
+if (document.readyState == 'complete') {
+    scriptFun();
+    log("Ran on completed document");
+} else {
+    window.addEventListener('load', scriptFun);
+    log("Registered as 'load' event listener");
+}
