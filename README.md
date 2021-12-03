@@ -1,5 +1,5 @@
-# bromite-userscripts
-This is a repository that hosts [User Scripts for Bromite](https://github.com/bromite/bromite/wiki/UserScripts), an Android browser.
+# Bromite User Scripts
+This is a repository that hosts [User Scripts for Bromite](https://github.com/bromite/bromite/wiki/UserScripts), an Android browser. They might also work on other mobile or desktop browsers, but I only use them on [Bromite](https://www.bromite.org/).
 
 ### Scripts
 Here scripts are sorted by category. See below on how to install them into your browser.
