@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Ad Block: Twitter
-// @namespace    010.one
-// @version      0.0.4
+// @namespace    xarantolus
+// @version      0.0.5
 // @description  Removes sponsored tweets on Twitter
 // @author       xarantolus
 // @match        *://twitter.com/*
@@ -11,7 +11,7 @@
 // ==/UserScript==
 
 var log = function (...data) {
-    console.log("[Twitter Ad Block]:", ...data);
+    console.log("[Ad Block: Twitter]:", ...data);
 }
 
 var scriptFun = function () {
