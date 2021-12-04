@@ -108,6 +108,8 @@ var scriptFun = function () {
     });
 
     setInterval(removeElements, 2500);
+
+    log("Finished initialization");
 }
 
 if (document.readyState == 'complete') {
