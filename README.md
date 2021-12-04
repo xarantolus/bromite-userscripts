@@ -8,6 +8,7 @@ Here scripts are sorted by category. See below on how to install them into your 
 Bromite has a built-in ad blocker (also see my [Bromite ad blocking project](https://github.com/xarantolus/filtrite)), but some sites are very good at bypassing it. We can improve blocking on these sites using scripts.
 
 * [**Twitter**](block/twitter.user.js?raw=true): block ads on Twitter (sponsored tweets and sponsored trends)
+* [**I don't care about cookies**](block/cookie/idcac.user.js?raw=true): block all kinds of cookie prompts. This script is based on the ["I don't care about cookies" browser extension](https://addons.mozilla.org/de/firefox/addon/i-dont-care-about-cookies/) (GPL). The userscript currently does not support all rules supported by the addon, so some sites might still show banners.
 
 ---
 
@@ -38,4 +39,4 @@ If you have any issues with these scripts (e.g. some ads aren't blocked for an a
 
 
 ### [License](LICENSE)
-This is free as in freedom software. Do whatever you like with it.
+All scripts unless otherwise noted are published under the MIT License (see the LICENSE file). Some scripts might be licensed differently (e.g. because they are derived from GPL-licensed works), which is indicated by the license header at the top of the file
