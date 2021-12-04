@@ -32,11 +32,14 @@ var scriptFun = function () {
 
         var iframes = [...document.querySelectorAll("iframe")];
 
+        // TODO: Sometimes when accessing iframes, an exception is thrown
         try {
             iframes.forEach(frame => {
                 output.concat(frame.contentWindow.document.body.querySelectorAll(selector));
             })
-        } catch (_) { }
+        } catch (ex) {
+            log("Cannot access iframes:", ex);
+         }
 
         return output;
     }
