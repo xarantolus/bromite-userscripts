@@ -124,12 +124,12 @@ var scriptFun = function () {
 
     // Whenever an ad tweet is added to the timeline, we remove it
     ready('[data-testid="placementTracking"]', function (element) {
-        if (element.querySelector(['[data-testid="videoPlayer"]'])) {
-            // This is a normal gif/video player, not an ad (maybe it's a video ad? not sure?)
-            return;
+        var it = element.innerText;
+        // Video players also have this id, so we only remove those that seem like sponsored stuff
+        if (sponsoredTranslations.some(x => it.includes(x))) {
+            element.remove();
+            log("Removed an ad tweet");
         }
-        element.remove();
-        log("Removed an ad tweet");
     });
 
     // Whenever a banner ad is added at the top of the "trending" section, we remove it
