@@ -4,11 +4,13 @@ This is a repository that hosts [User Scripts for Bromite](https://github.com/br
 ### Scripts
 Here scripts are sorted by category. See below on how to install them into your browser.
 
-#### Ad Blockers
+#### Blockers
 Bromite has a built-in ad blocker (also see my [Bromite ad blocking project](https://github.com/xarantolus/filtrite)), but some sites are very good at bypassing it. We can improve blocking on these sites using scripts.
 
 * [**Twitter**](block/twitter.user.js?raw=true): block ads on Twitter (sponsored tweets and sponsored trends)
-* [**I don't care about cookies**](block/cookie/idcac.user.js?raw=true): block all kinds of cookie prompts. This script is based on the ["I don't care about cookies" browser extension](https://addons.mozilla.org/de/firefox/addon/i-dont-care-about-cookies/) (GPL). The userscript currently does not support all rules supported by the addon, so some sites might still show banners.
+* [**I don't care about cookies**](block/idcac.user.js?raw=true): block all kinds of cookie prompts. This script is based on the ["I don't care about cookies" browser extension](https://addons.mozilla.org/de/firefox/addon/i-dont-care-about-cookies/) (GPL). The userscript currently does not support all rules supported by the addon, so some sites might still show banners.
+* [**Generalized Cookie Prompt Accept/Block**](block/accept-cookie-prompts.user.js?raw=true): This script searches for "Accept" buttons on pages and clicks them automatically. If that doesn't work, it removes all elements that seem like cookie prompts. 
+
 
 ---
 
