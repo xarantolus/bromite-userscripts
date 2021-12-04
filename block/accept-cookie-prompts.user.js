@@ -48,7 +48,7 @@ var scriptFun = function () {
             }
         }
     }
-    
+
     var acceptKeywords = [
         // English
         "accept", "agree", "continue", "allow",
@@ -71,22 +71,28 @@ var scriptFun = function () {
         if (acceptButton) {
             // Click accept if possible
             acceptButton.click();
+            log("Clicked an accept button within an cookie/consent/gdpr element");
             return;
         }
 
         // Remove the element, but also inject a common fix for scrolling issues
         element.remove();
+        log("Removed a cookie/consent/gdpr element");
         injectScrollFix();
     }
 
 
 
     function removeElements() {
+        querySelectorAllPages("button").filter(x => isAcceptButton(x)).forEach(x => {
+            x.click();
+            log("Clicked an accept button", x);
+        });
+
         // e.g. https://www.nytimes.com/
         DOMRegexClassApply(/gdpr/, acceptOrBlock);
         DOMRegexClassApply(/consent/, acceptOrBlock);
         DOMRegexClassApply(/cookie/, acceptOrBlock);
-        querySelectorAllPages("button").filter(x => isAcceptButton(x)).forEach(x => x.click());
     }
 
 
