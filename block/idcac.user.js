@@ -4165,8 +4165,8 @@ var scriptFun = function () {
 
         var domainSplit = host.split(".");
 
-        for (let i = 2; i < domainSplit.length + 1; i++) {
-            var domain = domainSplit.slice(domainSplit.length - i, domainSplit.length).join(".").toLowerCase();
+        for (let i = 0; i < domainSplit.length - 1; i++) {
+            var domain = domainSplit.slice(i, domainSplit.length).join(".").toLowerCase();
 
             var rule = rules[domain];
             if (rule) {
