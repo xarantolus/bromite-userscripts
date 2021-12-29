@@ -147,6 +147,15 @@ var scriptFun = function () {
         }
     });
 
+    // The same for sponsored follow suggestions
+    ready('[data-testid="UserCell"]', function (element) {
+        var it = element.innerText;
+        if (sponsoredTranslations.some(x => it.includes(x))) {
+            element.remove();
+            log("Removed sponsored follow " + element.innerText);
+        }
+    });
+
     log("All listeners attached");
 };
 
