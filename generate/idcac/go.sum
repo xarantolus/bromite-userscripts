@@ -1,0 +1,7 @@
+github.com/tdewolff/parse/v2 v2.5.14/go.mod h1:WzaJpRSbwq++EIQHYIRTpbYKNA3gn9it1Ik++q4zyho=
+github.com/tdewolff/parse/v2 v2.5.27 h1:PL3LzzXaOpmdrknnOlIeO2muIBHAwiKp6TxN1RbU5gI=
+github.com/tdewolff/parse/v2 v2.5.27/go.mod h1:WzaJpRSbwq++EIQHYIRTpbYKNA3gn9it1Ik++q4zyho=
+github.com/tdewolff/test v1.0.6 h1:76mzYJQ83Op284kMT+63iCNCI7NEERsIN8dLM+RiKr4=
+github.com/tdewolff/test v1.0.6/go.mod h1:6DAvZliBAAnD7rhVgwaM7DE5/d9NMOAJ09SqYqeK4QE=
+github.com/xarantolus/jsonextract v1.5.3 h1:KFC4x8fvWMfsTYMFyTak0NVHTyze0rDl7luDVwDU5Xc=
+github.com/xarantolus/jsonextract v1.5.3/go.mod h1:6rShiqGHNRcrpm36xQOMmPt78z/WPSKCL1Xhy2YRJY8=

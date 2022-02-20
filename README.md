@@ -11,6 +11,7 @@ Bromite has a built-in ad blocker (also see my [Bromite ad blocking project](htt
 * [**I don't care about cookies**](block/idcac.user.js?raw=true): block all kinds of cookie prompts. 
   * This script is based on the ["I don't care about cookies" browser extension](https://addons.mozilla.org/de/firefox/addon/i-dont-care-about-cookies/) (GPL). 
   * The userscript is not as powerful as the extension, but if you know how to circumvent the "Content Security Policy" violation that happens when injecting a script tag on sites like Google, please open an issue :)
+  * This script is automatically regenerated from time to time (using GitHub Actions)
 * [**Generalized Cookie Prompt Accept/Block**](block/accept-cookie-prompts.user.js?raw=true): This script searches for "Accept" buttons and clicks them automatically. It also removes all elements that seem like cookie prompts
   * *Warning*: Don't visit sites where an "Accept" button could mean something like extending a subscription!
   * The script currently only knows typical button texts for English and German sites. Please feel free to add new languages.
