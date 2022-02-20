@@ -1,0 +1,29 @@
+name: Auto-generate scripts
+
+on:
+  push:
+    branches: [ main ]
+    paths: 
+      - "generate/**"
+      - ".github/workflows/**"
+
+  schedule:
+  - cron: "0 9 * * FRI"
+  
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: ^1.17
+
+    - name: "Run regeneration script"
+      shell: bash
+      run: |
+        bash ./generate-all.sh 2>&1
+      working-directory: generate
