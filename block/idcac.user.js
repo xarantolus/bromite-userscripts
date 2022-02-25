@@ -19,7 +19,7 @@
 // ==UserScript==
 // @name         I don't care about cookies
 // @namespace    xarantolus
-// @version      1.0.4
+// @version      1.0.5
 // @description  Removes cookie banners, based on the browser extension
 // @author       xarantolus
 // @match        *://*/*
