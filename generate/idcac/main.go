@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"text/template"
@@ -51,13 +52,18 @@ func mapFunctions(fnts map[int]string) string {
 
 	sb.WriteString("{")
 
-	var counter int
+	var keys []int
+	for key := range fnts {
+		keys = append(keys, key)
+	}
+	sort.Ints(keys)
 
-	for key, val := range fnts {
+	var counter int
+	for _, key := range keys {
 		sb.WriteString(toJSString(strconv.Itoa(key)))
 		sb.WriteString(":")
 		sb.WriteString("(function () {")
-		sb.WriteString(val)
+		sb.WriteString(fnts[key])
 		sb.WriteString("})")
 		counter++
 
