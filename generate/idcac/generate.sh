@@ -3,7 +3,7 @@ set -euo pipefail
 
 echo "Installing dependencies..."
 
-sudo apt-get install -y unzip wget || true
+apt-get install -y unzip wget || true
 
 go install mvdan.cc/xurls/v2/cmd/xurls@latest
 

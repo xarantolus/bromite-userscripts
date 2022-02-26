@@ -30,10 +30,13 @@
 var commons = {{ .commons }};
 var rules = {{ .rules }};
 var javascriptFixes = {{ .javascriptFixes }};
+var cookieBlockCSS = {{ .cookieBlockCSS }};
 
 var log = function (...data) {
-    console.log("[I don't care about cookies]:", ...data);
+    console.log("[I don't care about cookies (v{{.version}})]:", ...data);
 }
+
+var injectedCookieBlockCSS = false;
 
 var scriptFun = function () {
 
@@ -43,13 +46,6 @@ var scriptFun = function () {
         style.type = 'text/css';
         style.innerHTML = cssStyle;
         document.getElementsByTagName('body')[0].appendChild(style);
-    }
-
-    function injectScript(jsScript) {
-        var script = document.createElement('script');
-        script.type = 'application/javascript';
-        script.innerHTML = jsScript;
-        document.getElementsByTagName('body')[0].appendChild(script);
     }
 
     // findRules finds all matching rule for this host
@@ -100,12 +96,18 @@ var scriptFun = function () {
         return null;
     }
 
+    // Only do this on the first run of the function
+    if (!injectedCookieBlockCSS) {
+        injectStyle(cookieBlockCSS);
+        injectedCookieBlockCSS = true;
+        log("Injected common CSS rules");
+    }
+
     var result = findRules(location.host);
     log("Found", result.length, "rule(s) for", location.host);
     if (rules.length == 0) {
         return;
     }
-
 
     for (var i = 0; i < result.length; i++) {
         var r = result[i];
@@ -123,18 +125,16 @@ var scriptFun = function () {
 
         var js = scriptForRule(r);
         if (js) {
-            injectScript(js);
+            js();
             log("Injected script");
         }
     }
-
 }
 
-if (document.readyState == 'complete') {
-    scriptFun();
-    log("Ran on completed document");
-} else {
+log("Running on inject");
+scriptFun();
+
+if (document.readyState !== 'complete') {
     window.addEventListener('load', scriptFun);
     log("Registered as 'load' event listener");
 }
-

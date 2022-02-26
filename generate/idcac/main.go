@@ -46,6 +46,31 @@ func isRules(m map[string]interface{}) bool {
 	return true
 }
 
+func mapFunctions(fnts map[int]string) string {
+	var sb = strings.Builder{}
+
+	sb.WriteString("{")
+
+	var counter int
+
+	for key, val := range fnts {
+		sb.WriteString(toJSString(strconv.Itoa(key)))
+		sb.WriteString(":")
+		sb.WriteString("(function () {")
+		sb.WriteString(val)
+		sb.WriteString("})")
+		counter++
+
+		if counter != len(fnts) {
+			sb.WriteString(",")
+		}
+	}
+
+	sb.WriteString("}")
+
+	return sb.String()
+}
+
 func nextVersionNumber(oldScriptPath string) string {
 	f, err := os.ReadFile(oldScriptPath)
 	if err != nil {
@@ -94,8 +119,9 @@ func main() {
 	defer f.Close()
 
 	var (
-		commons string
-		rules   string
+		commons        string
+		rules          string
+		cookieBlockCSS string
 
 		javascriptFixes = make(map[int]string)
 	)
@@ -119,6 +145,12 @@ func main() {
 	if err != nil {
 		log.Fatalf("Reading/Converting rules file: %s\n", err.Error())
 	}
+
+	cookieBlockCSSBytes, err := os.ReadFile(filepath.Join(*extensionBaseDir, "data/css/common.css"))
+	if err != nil {
+		log.Fatalf("Error reading common css rules: %s\n", err.Error())
+	}
+	cookieBlockCSS = string(cookieBlockCSSBytes)
 
 	err = filepath.WalkDir(filepath.Join(*extensionBaseDir, "data/js"), func(path string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
@@ -164,7 +196,8 @@ func main() {
 		"version":         scriptVersion,
 		"commons":         commons,
 		"rules":           rules,
-		"javascriptFixes": toJSString(javascriptFixes),
+		"javascriptFixes": mapFunctions(javascriptFixes),
+		"cookieBlockCSS":  toJSString(cookieBlockCSS),
 	})
 	if err != nil {
 		log.Fatalf("Error generating script text: %s\n", err.Error())
