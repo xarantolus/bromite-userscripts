@@ -9,7 +9,9 @@ on:
 
   schedule:
   - cron: "0 9 * * FRI"
-  
+
+  workflow_dispatch:
+
 jobs:
 
   build:
@@ -27,3 +29,16 @@ jobs:
       run: |
         bash ./generate-all.sh 2>&1
       working-directory: generate
+
+    - name: Generate tag name
+      run: echo "TAG_NAME=$(date +%F-%H-%M)" >> $GITHUB_ENV  
+
+    - name: Release scripts
+      uses: softprops/action-gh-release@v1
+      with:
+        files: block/*.user.js
+        name: Automatic script generation
+        tag_name: ${{ env.TAG_NAME }}
+        body: "This release contains all scripts provided by this repository.\n\nPlease see [the main project page](${{ github.server_url }}/${{ github.repository }}) for a description of the scripts."
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

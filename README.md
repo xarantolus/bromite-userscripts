@@ -7,15 +7,15 @@ Here scripts are sorted by category. See below on how to install them into your 
 #### Blockers
 Bromite has a built-in ad blocker (also see my [Bromite ad blocking project](https://github.com/xarantolus/filtrite)), but some sites are very good at bypassing it. We can improve blocking on these sites using scripts.
 
-* [**Twitter**](block/twitter.user.js?raw=true): block ads on Twitter (sponsored tweets and sponsored trends)
-* [**I don't care about cookies**](block/idcac.user.js?raw=true): block all kinds of cookie prompts. 
+* [**Twitter**](https://github.com/xarantolus/bromite-userscripts/releases/latest/download/twitter.user.js): block ads on Twitter (sponsored tweets and sponsored trends)
+* [**I don't care about cookies**](https://github.com/xarantolus/bromite-userscripts/releases/latest/download/idcac.user.js): block all kinds of cookie prompts. 
   * This script is based on the ["I don't care about cookies" browser extension](https://addons.mozilla.org/de/firefox/addon/i-dont-care-about-cookies/) (GPL). 
   * This script is automatically regenerated from time to time, keeping up to date with the latest rules from the browser extension
   * **Security consideration**: if the author of the browser extension inserts malicious code, this script would likely also contain that code
-* [**Generalized Cookie Prompt Accept/Block**](block/accept-cookie-prompts.user.js?raw=true): This script searches for "Accept" buttons and clicks them automatically. It also removes all elements that seem like cookie prompts
-  * *Warning*: Don't visit sites where an "Accept" button could mean something like extending a subscription!
-  * The script currently only knows typical button texts for English and German sites. Please feel free to add new languages.
-  * Some sites do not work because their cookie acceptance boxes are in iframes. If you know a workaround for that, please feel free to open an issue
+* [**Cosmetic AdBlock**](https://github.com/xarantolus/bromite-userscripts/releases/latest/download/cosmetic.user.js): block annoying elements 
+  * The Bromite AdBlock engine does not support cosmetic filtering, so this script implements that capability (to a very basic extent)
+  * Rules are regenerated once a week from the filter lists defined in [this file](generate/cosmetic/filter-lists.txt)
+
 
 ---
 
