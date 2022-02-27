@@ -1,49 +1,20 @@
 package main
 
 import (
-	"bufio"
 	_ "embed"
 	"encoding/json"
+	"flag"
 	"fmt"
-	"io"
-	"io/fs"
+	"io/ioutil"
 	"log"
 	"os"
-	"path/filepath"
 	"strings"
 	"text/template"
+	"time"
 
 	"cosmetic/filter"
+	"cosmetic/util"
 )
-
-func parseFilterList(f io.Reader) (filters []filter.BasicFilter) {
-	scan := bufio.NewScanner(f)
-
-	for scan.Scan() {
-		txt := strings.TrimSpace(scan.Text())
-
-		if len(txt) == 0 || strings.HasPrefix(txt, "!") {
-			continue
-		}
-
-		filter, ok := filter.ParseLine(txt)
-		if ok {
-			filters = append(filters, filter)
-		}
-	}
-
-	return filters
-}
-
-func filtersFromFile(filepath string) (filters []filter.BasicFilter) {
-	f, err := os.Open(filepath)
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-
-	return parseFilterList(f)
-}
 
 //go:embed script-template.js
 var scriptTemplateString string
@@ -51,37 +22,54 @@ var scriptTemplateString string
 var scriptTemplate = template.Must(template.New("").Parse(scriptTemplateString))
 
 func main() {
-	var filters []filter.BasicFilter
+	var (
+		inputLists   = flag.String("input", "filter-lists.txt", "Path to file that defines URLs to blocklists")
+		scriptTarget = flag.String("output", "cosmetic.user.js", "Path to output file")
+	)
+	flag.Parse()
 
-	err := filepath.Walk("t", func(path string, info fs.FileInfo, err error) error {
-		if err != nil || info.IsDir() {
-			return err
-		}
-
-		filters = append(filters, filtersFromFile(path)...)
-		return nil
-	})
+	filterURLs, err := util.ReadListFile(*inputLists)
 	if err != nil {
-		panic(err)
+		log.Fatalf("cannot load list of filter URLs: %s\n", err.Error())
 	}
 
-	fmt.Printf("Found %d filters\n", len(filters))
+	tempDir, err := ioutil.TempDir("", "cosmetic-filter-*")
+	if err != nil {
+		log.Fatalf("creating temp dir for cosmetic filters: %s\n", err.Error())
+	}
+	defer os.RemoveAll(tempDir)
 
-	lookup := filter.Combine(filters)
+	filterOutputFiles, err := util.DownloadURLs(filterURLs, tempDir)
+	if err != nil {
+		log.Fatalf("error downloading filter lists: %s\n", err.Error())
+	}
+	log.Printf("Downloaded %d filter files\n", len(filterOutputFiles))
+
+	var filters []filter.BasicFilter
+	for _, fp := range filterOutputFiles {
+		ff := util.FiltersFromFile(fp)
+		if len(ff) == 0 {
+			log.Printf("[Warning] No rules found in file %q\n", fp)
+		}
+		filters = append(filters, ff...)
+	}
+	fmt.Printf("Found %d filters in these files\n", len(filters))
+
+	lookupTable := filter.Combine(filters)
 
 	var compiledRules = map[string]string{}
-	for k, f := range lookup {
+	for k, f := range lookupTable {
 		compiledRules[k] = strings.Join(f, ",")
 	}
 
-	fmt.Printf("Combined them for %d domains", len(compiledRules))
+	fmt.Printf("Combined them for %d domains\n", len(compiledRules))
 
 	rules, err := json.Marshal(compiledRules)
 	if err != nil {
 		panic(err)
 	}
 
-	outputFile, err := os.Create("out.js")
+	outputFile, err := os.Create(*scriptTarget)
 	if err != nil {
 		log.Fatalf("creating output file: %s\n", err.Error())
 	}
@@ -92,7 +80,7 @@ func main() {
 	}
 
 	err = scriptTemplate.Execute(outputFile, map[string]string{
-		"version": "1.0.0",
+		"version": time.Now().Format("2006.01.02"),
 		"rules":   string(rules),
 	})
 	if err != nil {

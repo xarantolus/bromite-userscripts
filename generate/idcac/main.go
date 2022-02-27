@@ -9,11 +9,11 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 	"text/template"
+	"time"
 
 	"github.com/xarantolus/jsonextract"
 )
@@ -75,35 +75,6 @@ func mapFunctions(fnts map[int]string) string {
 	sb.WriteString("}")
 
 	return sb.String()
-}
-
-func nextVersionNumber(oldScriptPath string) string {
-	f, err := os.ReadFile(oldScriptPath)
-	if err != nil {
-		return "1.0.0"
-	}
-
-	reg := regexp.MustCompile(`@version\s+([\d\.]+)`)
-
-	result := reg.FindStringSubmatch(string(f))
-	if len(result) < 2 {
-		return "1.0.0"
-	}
-
-	split := strings.Split(result[1], ".")
-	if len(split) < 1 {
-		return "1.0.0"
-	}
-
-	lastSplitInt, err := strconv.Atoi(split[len(split)-1])
-	if err != nil {
-		return "1.0.0"
-	}
-
-	newSplit := split[:len(split)-1]
-	newSplit = append(newSplit, strconv.Itoa(lastSplitInt+1))
-
-	return strings.Join(newSplit, ".")
 }
 
 //go:embed script-template.js
@@ -186,8 +157,6 @@ func main() {
 		log.Fatalf("Unexpected lengths of commons(%d)/rules(%d)/javascriptFixes(%d) -- expected at least one of each", len(commons), len(rules), len(javascriptFixes))
 	}
 
-	scriptVersion := nextVersionNumber(*scriptTarget)
-
 	outputFile, err := os.Create(*scriptTarget)
 	if err != nil {
 		log.Fatalf("creating output file: %s\n", err.Error())
@@ -199,7 +168,7 @@ func main() {
 	}
 
 	err = scriptTemplate.Execute(outputFile, map[string]string{
-		"version":         scriptVersion,
+		"version":         time.Now().Format("2006.01.02"),
 		"commons":         commons,
 		"rules":           rules,
 		"javascriptFixes": mapFunctions(javascriptFixes),

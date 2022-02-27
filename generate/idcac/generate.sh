@@ -19,14 +19,16 @@ rm -rf "extension" || true
 mkdir -p "extension"
 unzip -ou "extension.zip" -d "extension"
 
-go run main.go -base extension -output "../../block/idcac.user.js"
+SCRIPT_PATH="../../block/idcac.user.js"
+
+go run main.go -base extension -output "$SCRIPT_PATH"
 
 rm -rf "extension" "extension.zip" || true
 
 # Now if we only changed the lines with version info in them (there are two lines), we reset the file
-CHANGED_LINE_COUNT="$(git diff -U0 ../../block/idcac.user.js | grep '^[+]' | grep -Ev '^(--- a/|\+\+\+ b/)' | wc -l)"
+CHANGED_LINE_COUNT="$(git diff -U0 $SCRIPT_PATH | grep '^[+]' | grep -Ev '^(--- a/|\+\+\+ b/)' | wc -l)"
 echo "$CHANGED_LINE_COUNT lines changed"
 
 if [[ $CHANGED_LINE_COUNT -lt 3 ]]; then
-    git checkout main ../../block/idcac.user.js
+    git checkout main "$SCRIPT_PATH"
 fi
