@@ -74,7 +74,7 @@ func main() {
 		log.Fatalf("creating output file: %s\n", err.Error())
 	}
 
-	_, err = outputFile.WriteString("// THIS FILE IS AUTO-GENERATED. DO NOT EDIT. See generate/idcac directory for more info\n")
+	_, err = outputFile.WriteString("// THIS FILE IS AUTO-GENERATED. DO NOT EDIT. See generate/cosmetic directory for more info\n")
 	if err != nil {
 		log.Fatalf("could not write auto generated message: %s\n", err.Error())
 	}
