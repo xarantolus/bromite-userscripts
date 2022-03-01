@@ -6,7 +6,7 @@
 // @author       xarantolus
 // @match        *://*/*
 // @grant        none
-// @run-at       document-end
+// @run-at       document-start
 // ==/UserScript==
 
 var log = function (...data) {
@@ -14,15 +14,14 @@ var log = function (...data) {
 }
 
 
-// injectStyle injects the css text at the end of the body
 function injectStyle(cssStyle) {
     var style = document.createElement('style');
     style.type = 'text/css';
     style.innerHTML = cssStyle;
-    document.getElementsByTagName('body')[0].appendChild(style);
+    document.getElementsByTagName('head')[0].appendChild(style);
 }
 
-var rules = {{.rules}};
+var rules = {{.rules }};
 var defaultRules = rules[""];
 
 
@@ -52,5 +51,26 @@ var hideFilter = "{display:none !important; height:0 !important; z-index:-99999 
 
 var cssRule = getRules(location.host) + hideFilter;
 
-log("Injecting style...")
-injectStyle(cssRule);
+// Source: https://stackoverflow.com/a/61747276
+function elementReady(selector) {
+    return new Promise((resolve, reject) => {
+        const el = document.querySelector(selector);
+        if (el) { resolve(el); }
+        new MutationObserver((mutationRecords, observer) => {
+            // Query for elements matching the specified selector
+            Array.from(document.querySelectorAll(selector)).forEach((element) => {
+                resolve(element);
+                //Once we have resolved we don't need the observer anymore.
+                observer.disconnect();
+            });
+        })
+        .observe(document.documentElement, {
+            childList: true,
+            subtree: false // This was changed to "false" since we only need "head", a direct descendant of the document element
+        });
+    });
+}
+elementReady('head').then((_) => {
+    log("Injecting style...")
+    injectStyle(cssRule);
+});
