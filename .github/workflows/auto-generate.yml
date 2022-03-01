@@ -42,3 +42,11 @@ jobs:
         body: "This release contains all scripts provided by this repository.\n\nPlease see [the main project page](${{ github.server_url }}/${{ github.repository }}) for a description of the scripts."
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Delete older releases
+      uses: dev-drprasad/delete-older-releases@v0.2.0
+      with:
+        keep_latest: 2
+        delete_tags: true 
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -31,9 +31,12 @@ Make sure you have a recent version of [Bromite](https://www.bromite.org/) insta
 8. (Optionally) Click the "View source" button to verify the content of the script
 9. Enable the newly installed script using the switch at the left side
 
+---
 
+### Auto-generated scripts
+Some scripts are auto-generated (because they need to be regenerated from time to time to include up to date sources). The source code for the generators is in subdirectories of the [`generate`](generate/) directory.
 
-### Contributing / Creating your own scripts
+### Creating your own scripts
 You can also create your own scripts, see the [official documentation](https://github.com/bromite/bromite/wiki/UserScripts) on how to do that. You should read the [Chromium User Script Design Document](https://www.chromium.org/developers/design-documents/user-scripts) to learn about existing pitfalls.
 
 I recommend trying out [remote debugging](https://developer.chrome.com/docs/devtools/remote-debugging/) via a desktop browser if your script doesn't behave as expected.
