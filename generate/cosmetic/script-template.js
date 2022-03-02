@@ -21,6 +21,7 @@ function injectStyle(cssStyle) {
     document.getElementsByTagName('head')[0].appendChild(style);
 }
 
+var deduplicatedRules = {{.deduplicatedRules}};
 var rules = {{.rules }};
 var defaultRules = rules[""];
 
@@ -36,9 +37,17 @@ function getRules(host) {
         log("Checking if we got a rule for", domain);
 
         var rule = rules[domain];
-        if (rule) {
-            log("Found a rule for domain", domain);
-            output.push(rule);
+        if (rule != null) {
+            if (typeof rule === 'number') {
+                // the selector is saved at this index in the deduplicatedRules array
+                var realRule = deduplicatedRules[rule];
+                log("Found deduplicated rule", rule, "for domain", domain);
+                output.push(realRule);
+            } else {
+                // It's a string that directly defines the selector
+                log("Found normal rule for domain", domain);
+                output.push(rule);
+            }
         }
     }
 

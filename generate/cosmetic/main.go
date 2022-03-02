@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"sort"
 	"strings"
 	"text/template"
 	"time"
@@ -20,6 +21,19 @@ import (
 var scriptTemplateString string
 
 var scriptTemplate = template.Must(template.New("").Parse(scriptTemplateString))
+
+func joinFilter(f []string) string {
+	sort.Strings(f)
+	return strings.Join(f, ",")
+}
+
+func toJSObject(x interface{}) string {
+	b, err := json.Marshal(x)
+	if err != nil {
+		panic(err)
+	}
+	return string(b)
+}
 
 func main() {
 	var (
@@ -57,17 +71,40 @@ func main() {
 
 	lookupTable := filter.Combine(filters)
 
-	var compiledRules = map[string]string{}
-	for k, f := range lookupTable {
-		compiledRules[k] = strings.Join(f, ",")
+	var ruleCount = map[string]int{}
+	for _, f := range lookupTable {
+		joined := joinFilter(f)
+		ruleCount[joined] = ruleCount[joined] + 1
+	}
+
+	var ruleTable []string
+	for f, count := range ruleCount {
+		if count > 1 {
+			ruleTable = append(ruleTable, f)
+		}
+	}
+	sort.Strings(ruleTable)
+
+	var ruleTableIndexMapping = map[string]int{}
+	for i, r := range ruleTable {
+		ruleTableIndexMapping[r] = i
+	}
+
+	// The compiled rules are either
+	// - a string, which is a css selector (usually selecting many elements)
+	// - an int, which is the index of a common rule (that was present more than once)
+	var compiledRules = map[string]interface{}{}
+
+	for domain, filter := range lookupTable {
+		joined := joinFilter(filter)
+		if ruleCount[joined] > 1 {
+			compiledRules[domain] = ruleTableIndexMapping[joined]
+		} else {
+			compiledRules[domain] = joinFilter(filter)
+		}
 	}
 
 	fmt.Printf("Combined them for %d domains\n", len(compiledRules))
-
-	rules, err := json.Marshal(compiledRules)
-	if err != nil {
-		panic(err)
-	}
 
 	outputFile, err := os.Create(*scriptTarget)
 	if err != nil {
@@ -80,8 +117,9 @@ func main() {
 	}
 
 	err = scriptTemplate.Execute(outputFile, map[string]string{
-		"version": time.Now().Format("2006.01.02"),
-		"rules":   string(rules),
+		"version":           time.Now().Format("2006.01.02"),
+		"rules":             toJSObject(compiledRules),
+		"deduplicatedRules": toJSObject(ruleTable),
 	})
 	if err != nil {
 		log.Fatalf("Error generating script text: %s\n", err.Error())
