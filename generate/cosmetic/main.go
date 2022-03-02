@@ -22,9 +22,9 @@ var scriptTemplateString string
 
 var scriptTemplate = template.Must(template.New("").Parse(scriptTemplateString))
 
-func joinFilter(f []string) string {
+func joinSorted(f []string, comma string) string {
 	sort.Strings(f)
-	return strings.Join(f, ",")
+	return strings.Join(f, comma)
 }
 
 func toJSObject(x interface{}) string {
@@ -59,7 +59,7 @@ func main() {
 	}
 	log.Printf("Downloaded %d filter files\n", len(filterOutputFiles))
 
-	var filters []filter.BasicFilter
+	var filters []filter.Rule
 	for _, fp := range filterOutputFiles {
 		ff := util.FiltersFromFile(fp)
 		if len(ff) == 0 {
@@ -71,40 +71,55 @@ func main() {
 
 	lookupTable := filter.Combine(filters)
 
-	var ruleCount = map[string]int{}
+	var duplicateCount = map[string]int{}
 	for _, f := range lookupTable {
-		joined := joinFilter(f)
-		ruleCount[joined] = ruleCount[joined] + 1
+		joined := joinSorted(f.Selectors, ",")
+		duplicateCount[joined] = duplicateCount[joined] + 1
+		joined = joinSorted(f.InjectedCSS, "")
+		duplicateCount[joined] = duplicateCount[joined] + 1
 	}
 
-	var ruleTable []string
-	for f, count := range ruleCount {
+	var deduplicatedStrings []string
+	for f, count := range duplicateCount {
 		if count > 1 {
-			ruleTable = append(ruleTable, f)
+			deduplicatedStrings = append(deduplicatedStrings, f)
 		}
 	}
-	sort.Strings(ruleTable)
+	sort.Strings(deduplicatedStrings)
 
-	var ruleTableIndexMapping = map[string]int{}
-	for i, r := range ruleTable {
-		ruleTableIndexMapping[r] = i
+	var deduplicatedIndexMapping = map[string]int{}
+	for i, r := range deduplicatedStrings {
+		deduplicatedIndexMapping[r] = i
 	}
 
 	// The compiled rules are either
 	// - a string, which is a css selector (usually selecting many elements)
 	// - an int, which is the index of a common rule (that was present more than once)
-	var compiledRules = map[string]interface{}{}
-
+	var (
+		compiledSelectorRules  = map[string]interface{}{}
+		compiledInjectionRules = map[string]interface{}{}
+	)
 	for domain, filter := range lookupTable {
-		joined := joinFilter(filter)
-		if ruleCount[joined] > 1 {
-			compiledRules[domain] = ruleTableIndexMapping[joined]
-		} else {
-			compiledRules[domain] = joinFilter(filter)
+		if len(filter.Selectors) > 0 {
+			joined := joinSorted(filter.Selectors, ",")
+			if duplicateCount[joined] > 1 {
+				compiledSelectorRules[domain] = deduplicatedIndexMapping[joined]
+			} else {
+				compiledSelectorRules[domain] = joined
+			}
+		}
+
+		if len(filter.InjectedCSS) > 0 {
+			joined := joinSorted(filter.InjectedCSS, "")
+			if duplicateCount[joined] > 1 {
+				compiledInjectionRules[domain] = deduplicatedIndexMapping[joined]
+			} else {
+				compiledInjectionRules[domain] = joined
+			}
 		}
 	}
 
-	fmt.Printf("Combined them for %d domains\n", len(compiledRules))
+	fmt.Printf("Combined them for %d domains\n", len(compiledSelectorRules))
 
 	outputFile, err := os.Create(*scriptTarget)
 	if err != nil {
@@ -117,9 +132,10 @@ func main() {
 	}
 
 	err = scriptTemplate.Execute(outputFile, map[string]string{
-		"version":           time.Now().Format("2006.01.02"),
-		"rules":             toJSObject(compiledRules),
-		"deduplicatedRules": toJSObject(ruleTable),
+		"version":             time.Now().Format("2006.01.02"),
+		"rules":               toJSObject(compiledSelectorRules),
+		"injectionRules":      toJSObject(compiledInjectionRules),
+		"deduplicatedStrings": toJSObject(deduplicatedStrings),
 	})
 	if err != nil {
 		log.Fatalf("Error generating script text: %s\n", err.Error())

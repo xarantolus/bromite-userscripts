@@ -1,16 +1,19 @@
 package filter
 
 import (
+	"regexp"
 	"strings"
 	"unicode"
 
 	"github.com/andybalholm/cascadia"
 )
 
-type BasicFilter struct {
+type Rule struct {
 	Domains []string
 
 	CSSSelector string
+
+	InjectedCSS string
 }
 
 func isIncompatibleSelector(s string) bool {
@@ -29,8 +32,12 @@ func isIncompatibleSelector(s string) bool {
 	return false
 }
 
+var (
+	injectedStyleRegex = regexp.MustCompile(`(.*?)\:style\((.*?)\)`)
+)
+
 // See https://help.eyeo.com/en/adblockplus/how-to-write-filters, "Content Filters"
-func ParseLine(line string) (f BasicFilter, ok bool) {
+func ParseLine(line string) (f Rule, ok bool) {
 	split := strings.SplitN(line, "##", 2)
 	if len(split) != 2 {
 		return f, false
@@ -42,9 +49,22 @@ func ParseLine(line string) (f BasicFilter, ok bool) {
 		return f, false
 	}
 
-	// Make sure we only get valid selectors
-	if isIncompatibleSelector(split[1]) {
-		return f, false
+	var (
+		injectedStyle string
+		selector      = split[1]
+	)
+	if strings.Contains(split[1], ":style") {
+		matches := injectedStyleRegex.FindStringSubmatch(split[1])
+		if len(matches) != 3 {
+			return f, false
+		}
+		selector = ""
+		injectedStyle = matches[1] + "{" + matches[2] + "}"
+	} else {
+		// Make sure we only get valid selectors
+		if isIncompatibleSelector(selector) {
+			return f, false
+		}
 	}
 
 	domains := strings.FieldsFunc(split[0], func(r rune) bool {
@@ -55,8 +75,9 @@ func ParseLine(line string) (f BasicFilter, ok bool) {
 		domains = append(domains, "")
 	}
 
-	return BasicFilter{
+	return Rule{
 		Domains:     domains,
-		CSSSelector: split[1],
+		CSSSelector: selector,
+		InjectedCSS: injectedStyle,
 	}, true
 }

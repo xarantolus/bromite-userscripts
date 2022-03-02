@@ -21,8 +21,9 @@ function injectStyle(cssStyle) {
     document.getElementsByTagName('head')[0].appendChild(style);
 }
 
-var deduplicatedRules = {{.deduplicatedRules}};
-var rules = {{.rules }};
+var deduplicatedStrings = {{.deduplicatedStrings }};
+var injectionRules = {{.injectionRules}};
+var rules = {{.rules}};
 var defaultRules = rules[""];
 
 
@@ -40,25 +41,42 @@ function getRules(host) {
         if (rule != null) {
             if (typeof rule === 'number') {
                 // the selector is saved at this index in the deduplicatedRules array
-                var realRule = deduplicatedRules[rule];
+                var realRule = deduplicatedStrings[rule];
                 log("Found deduplicated rule", rule, "for domain", domain);
-                output.push(realRule);
+                output.push({ "s": realRule });
             } else {
                 // It's a string that directly defines the selector
                 log("Found normal rule for domain", domain);
-                output.push(rule);
+                output.push({ "s": rule });
+            }
+        }
+
+        var injection = injectionRules[domain];
+        if (injection != null) {
+            if (typeof injection === 'number') {
+                var realInjection = deduplicatedStrings[injection];
+                log("Found deduplicated injection", injection, "for domain", domain);
+                output.push({ "i": realInjection })
+            } else {
+                log("Found normal injection for domain", domain);
+                output.push({ "i": injection });
             }
         }
     }
 
-    output.push(defaultRules);
+    output.push({ "s": defaultRules });
 
-    return output.join(",");
+    return output;
 }
 
-var hideFilter = "{display:none !important; height:0 !important; z-index:-99999 !important; visibility:hidden !important; width:0 !important; overflow:hidden !important}"
+var hideRules = "{display:none !important; height:0 !important; z-index:-99999 !important; visibility:hidden !important; width:0 !important; overflow:hidden !important}"
 
-var cssRule = getRules(location.host) + hideFilter;
+var foundRules = getRules(location.host);
+
+var hiddenElementsSelector = foundRules.filter(r => r["s"] != null)
+    .map(r => r["s"]).join(",") + hideRules;
+
+var cssInjections = foundRules.filter(r => r["i"] != null).map(r => r["i"]).join("");
 
 // Source: https://stackoverflow.com/a/61747276
 function elementReady(selector) {
@@ -73,13 +91,18 @@ function elementReady(selector) {
                 observer.disconnect();
             });
         })
-        .observe(document.documentElement, {
-            childList: true,
-            subtree: false // This was changed to "false" since we only need "head", a direct descendant of the document element
-        });
+            .observe(document.documentElement, {
+                childList: true,
+                subtree: false // This was changed to "false" since we only need "head", a direct descendant of the document element
+            });
     });
 }
 elementReady('head').then((_) => {
     log("Injecting style...")
-    injectStyle(cssRule);
+    injectStyle(hiddenElementsSelector);
+
+    if (cssInjections.length > 0) {
+        log("Injecting additional styles (usually style fixes)")
+        injectStyle(cssInjections);
+    }
 });

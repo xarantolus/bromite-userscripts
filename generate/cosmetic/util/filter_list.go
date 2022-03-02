@@ -9,7 +9,7 @@ import (
 	"cosmetic/filter"
 )
 
-func ParseFilterList(f io.Reader) (filters []filter.BasicFilter) {
+func ParseFilterList(f io.Reader) (filters []filter.Rule) {
 	scan := bufio.NewScanner(f)
 
 	for scan.Scan() {
@@ -28,7 +28,7 @@ func ParseFilterList(f io.Reader) (filters []filter.BasicFilter) {
 	return filters
 }
 
-func FiltersFromFile(filepath string) (filters []filter.BasicFilter) {
+func FiltersFromFile(filepath string) (filters []filter.Rule) {
 	f, err := os.Open(filepath)
 	if err != nil {
 		panic(err)

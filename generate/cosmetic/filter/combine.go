@@ -1,17 +1,25 @@
 package filter
 
-func Combine(filters []BasicFilter) (m map[string][]string) {
-	m = make(map[string][]string)
+type CombineResult struct {
+	Selectors   []string
+	InjectedCSS []string
+}
+
+func Combine(filters []Rule) (m map[string]CombineResult) {
+	m = make(map[string]CombineResult)
 
 	for _, f := range filters {
 		for _, d := range f.Domains {
-			selectors := m[d]
+			out := m[d]
 
-			if !contains(selectors, f.CSSSelector) {
-				selectors = append(selectors, f.CSSSelector)
+			if f.CSSSelector != "" && !contains(out.Selectors, f.CSSSelector) {
+				out.Selectors = append(out.Selectors, f.CSSSelector)
+			}
+			if f.InjectedCSS != "" && !contains(out.InjectedCSS, f.InjectedCSS) {
+				out.InjectedCSS = append(out.InjectedCSS, f.InjectedCSS)
 			}
 
-			m[d] = selectors
+			m[d] = out
 		}
 	}
 
