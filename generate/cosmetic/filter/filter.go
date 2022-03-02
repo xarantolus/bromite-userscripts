@@ -2,6 +2,7 @@ package filter
 
 import (
 	"strings"
+	"unicode"
 
 	"github.com/andybalholm/cascadia"
 )
@@ -46,8 +47,16 @@ func ParseLine(line string) (f BasicFilter, ok bool) {
 		return f, false
 	}
 
+	domains := strings.FieldsFunc(split[0], func(r rune) bool {
+		return unicode.IsSpace(r) || r == ','
+	})
+	if len(domains) == 0 {
+		// General rules for all domains need the empty domain to work with the script
+		domains = append(domains, "")
+	}
+
 	return BasicFilter{
-		Domains:     strings.Split(split[0], ","),
+		Domains:     domains,
 		CSSSelector: split[1],
 	}, true
 }
