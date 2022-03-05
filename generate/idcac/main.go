@@ -16,6 +16,8 @@ import (
 	"time"
 
 	"github.com/xarantolus/jsonextract"
+	"idcac/amo"
+	"idcac/extract"
 )
 
 func toJSString(obj interface{}) string {
@@ -82,14 +84,38 @@ var scriptTemplateString string
 
 var scriptTemplate = template.Must(template.New("").Parse(scriptTemplateString))
 
+const extensionURL = "https://addons.mozilla.org/en/firefox/addon/i-dont-care-about-cookies/"
+
 func main() {
 	var (
-		extensionBaseDir = flag.String("base", "extension", "The base directory of the extracted \"I don't care about cookies\" extension")
-		scriptTarget     = flag.String("output", "idcac.user.js", "Path to output file")
+		scriptTarget = flag.String("output", "idcac.user.js", "Path to output file")
 	)
 	flag.Parse()
 
-	f, err := os.Open(filepath.Join(*extensionBaseDir, "data/rules.js"))
+	extensionInfo, err := amo.ScrapeInfo(extensionURL)
+	if err != nil {
+		log.Fatalf("scraping idcac extension info: %s\n", err.Error())
+	}
+
+	extensionBaseDir, err := os.MkdirTemp("", "idcac-extension-*")
+	if err != nil {
+		log.Fatalf("creating temporary directory for idcac extension: %s\n", err.Error())
+	}
+	defer os.RemoveAll(extensionBaseDir)
+
+	extStream, cancel, err := amo.DownloadFile(extensionInfo.URL)
+	defer cancel()
+	if err != nil {
+		log.Fatalf("downloading extension zip file: %s\n", err.Error())
+	}
+	defer extStream.Close()
+
+	err = extract.Zip(extStream, extensionBaseDir)
+	if err != nil {
+		log.Fatalf("extracting extension zip: %s\n", err.Error())
+	}
+
+	f, err := os.Open(filepath.Join(extensionBaseDir, "data/rules.js"))
 	if err != nil {
 		log.Fatalf("Open rules file from extension: %s\n", err.Error())
 	}
@@ -123,13 +149,13 @@ func main() {
 		log.Fatalf("Reading/Converting rules file: %s\n", err.Error())
 	}
 
-	cookieBlockCSSBytes, err := os.ReadFile(filepath.Join(*extensionBaseDir, "data/css/common.css"))
+	cookieBlockCSSBytes, err := os.ReadFile(filepath.Join(extensionBaseDir, "data/css/common.css"))
 	if err != nil {
 		log.Fatalf("Error reading common css rules: %s\n", err.Error())
 	}
 	cookieBlockCSS = string(cookieBlockCSSBytes)
 
-	err = filepath.WalkDir(filepath.Join(*extensionBaseDir, "data/js"), func(path string, d fs.DirEntry, err error) error {
+	err = filepath.WalkDir(filepath.Join(extensionBaseDir, "data/js"), func(path string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
 			return err
 		}

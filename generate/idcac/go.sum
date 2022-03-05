@@ -1,3 +1,5 @@
+github.com/krolaw/zipstream v0.0.0-20180621105154-0a2661891f94 h1:+AIlO01SKT9sfWU5CLWi0cfHc7dQwgGz3FhFRzXLoMg=
+github.com/krolaw/zipstream v0.0.0-20180621105154-0a2661891f94/go.mod h1:TcE3PIIkVWbP/HjhRAafgCjRKvDOi086iqp9VkNX/ng=
 github.com/tdewolff/parse/v2 v2.5.14/go.mod h1:WzaJpRSbwq++EIQHYIRTpbYKNA3gn9it1Ik++q4zyho=
 github.com/tdewolff/parse/v2 v2.5.27 h1:PL3LzzXaOpmdrknnOlIeO2muIBHAwiKp6TxN1RbU5gI=
 github.com/tdewolff/parse/v2 v2.5.27/go.mod h1:WzaJpRSbwq++EIQHYIRTpbYKNA3gn9it1Ik++q4zyho=
