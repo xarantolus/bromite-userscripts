@@ -1,0 +1,26 @@
+name: Test auto-generation
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: ^1.17
+
+    - name: "Run regeneration script"
+      shell: bash
+      run: |
+        sudo bash ./generate-all.sh 2>&1
+      working-directory: generate
+
+    - name: List output directory 
+      run: ls -lsh block
