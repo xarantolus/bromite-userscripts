@@ -5,7 +5,7 @@ echo "Installing dependencies..."
 
 apt-get install -y unzip wget jq || true
 
-go install github.com/xarantolus/jsonextract/cmd/jsonx@latest
+go install "github.com/xarantolus/jsonextract/cmd/jsonx"
 
 echo "Downloading Firefox extension"
 
