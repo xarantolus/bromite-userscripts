@@ -27,7 +27,7 @@ jobs:
     - name: "Run regeneration script"
       shell: bash
       run: |
-        bash ./generate-all.sh 2>&1
+        sudo bash ./generate-all.sh 2>&1
       working-directory: generate
 
     - name: Generate tag name

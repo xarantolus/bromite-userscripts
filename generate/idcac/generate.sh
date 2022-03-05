@@ -3,14 +3,13 @@ set -euo pipefail
 
 echo "Installing dependencies..."
 
-apt-get install -y unzip wget || true
+apt-get install -y unzip wget jq || true
 
-go install mvdan.cc/xurls/v2/cmd/xurls@latest
-
+go install github.com/xarantolus/jsonextract/cmd/jsonx@latest
 
 echo "Downloading Firefox extension"
 
-XPI_URL="$(curl -L https://addons.mozilla.org/en/firefox/addon/i-dont-care-about-cookies/ | xurls | grep downloads | grep .xpi)"
+XPI_URL="$(jsonx https://addons.mozilla.org/en/firefox/addon/i-dont-care-about-cookies/ id created hash permissions url | jq -r .url | grep .xpi)"
 
 wget --no-check-certificate -O "extension.zip" "$XPI_URL"
 
