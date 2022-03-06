@@ -69,7 +69,7 @@ function getRules(host) {
     return output;
 }
 
-var hideRules = "{display:none !important; height:0 !important; z-index:-99999 !important; visibility:hidden !important; width:0 !important; overflow:hidden !important}"
+var hideRules = "{display:none!important;min-height:0!important;height:0!important;z-index:-99999!important;visibility:hidden!important;width:0!important;min-width:0!important;overflow:hidden!important}"
 
 var foundRules = getRules(location.host);
 
