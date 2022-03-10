@@ -14,6 +14,7 @@ Bromite has a built-in ad blocker (also see my [Bromite ad blocking project](htt
   * **Security consideration**: if the author of the browser extension inserts malicious code, this script would likely also contain that code
 * [**Cosmetic AdBlock**](https://github.com/xarantolus/bromite-userscripts/releases/latest/download/cosmetic.user.js): block annoying elements 
   * The Bromite AdBlock engine does not support cosmetic filtering, so this script implements that capability (to a very basic extent)
+  * This script doesn't know about exception rules, so it will block too many elements on some pages
   * Rules are regenerated once a week from the filter lists defined in [this file](generate/cosmetic/filter-lists.txt)
 
 

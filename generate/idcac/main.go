@@ -14,10 +14,9 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/xarantolus/jsonextract"
 	"idcac/amo"
 	"idcac/extract"
-
-	"github.com/xarantolus/jsonextract"
 )
 
 func toJSString(obj interface{}) string {

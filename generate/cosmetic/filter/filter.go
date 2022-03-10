@@ -38,14 +38,19 @@ var (
 
 // See https://help.eyeo.com/en/adblockplus/how-to-write-filters, "Content Filters"
 func ParseLine(line string) (f Rule, ok bool) {
+	var isSpecificCSSInjection bool
 	split := strings.SplitN(line, "##", 2)
 	if len(split) != 2 {
-		return f, false
+		split = strings.SplitN(line, "#$#", 2)
+		isSpecificCSSInjection = true
+		if len(split) != 2 {
+			return f, false
+		}
 	}
 
 	// We currently only support very basic filters.
 	// This check makes sure the other filters types are filtered out
-	if strings.ContainsAny(split[0], "*~#@") {
+	if split[0] != "*" && strings.ContainsAny(split[0], "*~#@") {
 		return f, false
 	}
 
@@ -60,6 +65,9 @@ func ParseLine(line string) (f Rule, ok bool) {
 		}
 		selector = ""
 		injectedStyle = matches[1] + "{" + matches[2] + "}"
+	} else if isSpecificCSSInjection {
+		selector = ""
+		injectedStyle = split[1]
 	} else {
 		// Make sure we only get valid selectors
 		if isIncompatibleSelector(selector) {
@@ -73,6 +81,9 @@ func ParseLine(line string) (f Rule, ok bool) {
 	if len(domains) == 0 {
 		// General rules for all domains need the empty domain to work with the script
 		domains = append(domains, "")
+	}
+	if split[0] == "*" {
+		domains = []string{""}
 	}
 
 	return Rule{
