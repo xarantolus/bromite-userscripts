@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/fs"
 	"io/ioutil"
 	"log"
 	"os"
@@ -15,9 +14,10 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/xarantolus/jsonextract"
 	"idcac/amo"
 	"idcac/extract"
+
+	"github.com/xarantolus/jsonextract"
 )
 
 func toJSString(obj interface{}) string {
@@ -156,7 +156,7 @@ func main() {
 	}
 	cookieBlockCSS = string(cookieBlockCSSBytes)
 
-	err = filepath.WalkDir(filepath.Join(extensionBaseDir, "data/js"), func(path string, d fs.DirEntry, err error) error {
+	err = filepath.WalkDir(filepath.Join(extensionBaseDir, "data/js"), func(path string, d os.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
 			return err
 		}

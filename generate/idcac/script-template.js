@@ -136,5 +136,5 @@ scriptFun();
 
 if (document.readyState !== 'complete') {
     window.addEventListener('load', scriptFun);
-    log("Registered as 'load' event listener");
+    log("Registered as 'load' event listener. This means that the injection of rules will happen twice (else cookie prompts that haven't loaded yet could be missed)");
 }
