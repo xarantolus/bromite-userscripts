@@ -98,7 +98,7 @@ func main() {
 		log.Fatalf("scraping idcac extension info: %s\n", err.Error())
 	}
 
-	extensionBaseDir, err := os.MkdirTemp("", "idcac-extension-*")
+	extensionBaseDir, err := ioutil.TempDir("", "idcac-extension-*")
 	if err != nil {
 		log.Fatalf("creating temporary directory for idcac extension: %s\n", err.Error())
 	}
@@ -150,13 +150,13 @@ func main() {
 		log.Fatalf("Reading/Converting rules file: %s\n", err.Error())
 	}
 
-	cookieBlockCSSBytes, err := os.ReadFile(filepath.Join(extensionBaseDir, "data/css/common.css"))
+	cookieBlockCSSBytes, err := ioutil.ReadFile(filepath.Join(extensionBaseDir, "data/css/common.css"))
 	if err != nil {
 		log.Fatalf("Error reading common css rules: %s\n", err.Error())
 	}
 	cookieBlockCSS = string(cookieBlockCSSBytes)
 
-	err = filepath.WalkDir(filepath.Join(extensionBaseDir, "data/js"), func(path string, d os.DirEntry, err error) error {
+	err = filepath.Walk(filepath.Join(extensionBaseDir, "data/js"), func(path string, d os.FileInfo, err error) error {
 		if err != nil || d.IsDir() {
 			return err
 		}
@@ -170,7 +170,7 @@ func main() {
 			return nil
 		}
 
-		fileContent, err := os.ReadFile(path)
+		fileContent, err := ioutil.ReadFile(path)
 		if err != nil {
 			return fmt.Errorf("reading common javascript fix file: %w", err)
 		}
