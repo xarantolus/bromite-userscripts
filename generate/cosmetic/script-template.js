@@ -22,8 +22,8 @@ function injectStyle(cssStyle) {
 }
 
 var deduplicatedStrings = {{.deduplicatedStrings }};
-var injectionRules = {{.injectionRules}};
-var rules = {{.rules}};
+var injectionRules = {{.injectionRules }};
+var rules = {{.rules }};
 var defaultRules = rules[""];
 
 
@@ -64,19 +64,27 @@ function getRules(host) {
         }
     }
 
-    output.push({ "s": defaultRules });
+    output.push({ "s": defaultRules, isDefault: true });
 
     return output;
 }
 
-var hideRules = "{display:none !important; height:0 !important; z-index:-99999 !important; visibility:hidden !important; width:0 !important; overflow:hidden !important}"
+var hiddenStyle = "display:none!important;min-height:0!important;height:0!important;z-index:-99999!important;visibility:hidden!important;width:0!important;min-width:0!important;overflow:hidden!important";
+var hideRules = "{" + hiddenStyle + "}"
 
 var foundRules = getRules(location.host);
+
+log("Found", foundRules.length, "rules to inject");
 
 var hiddenElementsSelector = foundRules.filter(r => r["s"] != null)
     .map(r => r["s"]).join(",") + hideRules;
 
 var cssInjections = foundRules.filter(r => r["i"] != null).map(r => r["i"]).join("");
+
+var pageSpecificSelectors = foundRules.filter(r => r["s"] != null && !r.isDefault)
+    .map(r => r["s"]).join(",");
+
+log("Page specific selectors:", pageSpecificSelectors)
 
 // Source: https://stackoverflow.com/a/61747276
 function elementReady(selector) {
@@ -97,12 +105,48 @@ function elementReady(selector) {
             });
     });
 }
+
+function hidePageSpecificElements(reason) {
+    if (pageSpecificSelectors.length == 0) return;
+
+    log("Searching for elements (" + reason + ")")
+    var elems = [...document.querySelectorAll(pageSpecificSelectors)];
+    elems.forEach(function (elem) {
+        elem.setAttribute("style", hiddenStyle);
+    });
+    log("Tried hiding", elems.length, "page-specific elements");
+}
+
+// Now we have hidden a lot of stuff using rules. However, some sites still display elements
+// because they look like <span class="ad" style="display:block">
+// This means that the !important from our css declaration above will not work on these elements (as direct styles take precedence)
+// We need to replace the style of all elements with this selector
+// When the HTML has finished parsing:
+window.addEventListener('DOMContentLoaded', function () {
+    hidePageSpecificElements("DOMContentLoaded");
+
+    setTimeout(() => hidePageSpecificElements("DOMContentLoaded + 1000ms"), 1000);
+});
+// And after the page is fully loaded, we do a bunch of checks within the first second or so.
+// If a page pops up a cookie popup after the page has loaded, this one will also defeat it
+window.addEventListener('load', function () {
+    hidePageSpecificElements("load - initial");
+
+    function to(offset) {
+        var ms = offset * 500;
+        setTimeout(() => hidePageSpecificElements("load + " + ms + "ms"), ms);
+    };
+    for (var i = 1; i <= 5; i++) {
+        to(i);
+    }
+})
+
 elementReady('head').then((_) => {
-    log("Injecting style...")
     injectStyle(hiddenElementsSelector);
+    log("Injected combined style");
 
     if (cssInjections.length > 0) {
-        log("Injecting additional styles (usually style fixes)")
         injectStyle(cssInjections);
+        log("Also injected additional styles (usually fixes for scrolling issues)")
     }
 });
