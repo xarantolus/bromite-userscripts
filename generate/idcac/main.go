@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"io/fs"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -79,11 +80,6 @@ func mapFunctions(fnts map[int]string) string {
 	return sb.String()
 }
 
-//go:embed script-template.js
-var scriptTemplateString string
-
-var scriptTemplate = template.Must(template.New("").Parse(scriptTemplateString))
-
 const extensionURL = "https://addons.mozilla.org/en/firefox/addon/i-dont-care-about-cookies/"
 
 func main() {
@@ -91,6 +87,12 @@ func main() {
 		scriptTarget = flag.String("output", "idcac.user.js", "Path to output file")
 	)
 	flag.Parse()
+
+	scriptTemplateContent, err := ioutil.ReadFile("script-template.js")
+	if err != nil {
+		log.Fatalf("reading script template file: %s\n", err.Error())
+	}
+	var scriptTemplate = template.Must(template.New("").Parse(string(scriptTemplateContent)))
 
 	extensionInfo, err := amo.ScrapeInfo(extensionURL)
 	if err != nil {

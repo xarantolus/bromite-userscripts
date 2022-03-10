@@ -1,6 +1,6 @@
 module idcac
 
-go 1.17
+go 1.15
 
 require github.com/xarantolus/jsonextract v1.5.3
 

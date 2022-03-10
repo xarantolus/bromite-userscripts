@@ -17,11 +17,6 @@ import (
 	"cosmetic/util"
 )
 
-//go:embed script-template.js
-var scriptTemplateString string
-
-var scriptTemplate = template.Must(template.New("").Parse(scriptTemplateString))
-
 func joinSorted(f []string, comma string) string {
 	sort.Strings(f)
 	return strings.Join(f, comma)
@@ -41,6 +36,12 @@ func main() {
 		scriptTarget = flag.String("output", "cosmetic.user.js", "Path to output file")
 	)
 	flag.Parse()
+
+	scriptTemplateContent, err := ioutil.ReadFile("script-template.js")
+	if err != nil {
+		log.Fatalf("reading script template file: %s\n", err.Error())
+	}
+	var scriptTemplate = template.Must(template.New("").Parse(string(scriptTemplateContent)))
 
 	filterURLs, err := util.ReadListFile(*inputLists)
 	if err != nil {
