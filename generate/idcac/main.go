@@ -19,6 +19,23 @@ import (
 	"idcac/extract"
 )
 
+func readVersion(extBaseDir string) (s string, err error) {
+	f, err := os.Open(filepath.Join(extBaseDir, "manifest.json"))
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	type vinfo struct {
+		Version string `json:"version"`
+	}
+
+	i := new(vinfo)
+	err = json.NewDecoder(f).Decode(i)
+
+	return i.Version, err
+}
+
 func toJSString(obj interface{}) string {
 	s, err := json.Marshal(obj)
 	if err != nil {
@@ -179,6 +196,11 @@ func main() {
 		return nil
 	})
 
+	extensionVersion, err := readVersion(extensionBaseDir)
+	if err != nil {
+		extensionVersion = "(unknown)"
+	}
+
 	if len(commons) == 0 || len(rules) == 0 || len(javascriptFixes) == 0 {
 		log.Fatalf("Unexpected lengths of commons(%d)/rules(%d)/javascriptFixes(%d) -- expected at least one of each", len(commons), len(rules), len(javascriptFixes))
 	}
@@ -199,6 +221,7 @@ func main() {
 		"rules":           rules,
 		"javascriptFixes": mapFunctions(javascriptFixes),
 		"cookieBlockCSS":  toJSString(cookieBlockCSS),
+		"statistics":      fmt.Sprintf("generated from version `%s` available [here](%s)", extensionVersion, extensionURL),
 	})
 	if err != nil {
 		log.Fatalf("Error generating script text: %s\n", err.Error())

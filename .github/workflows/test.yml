@@ -24,3 +24,6 @@ jobs:
 
     - name: List output directory 
       run: ls -lsh block
+
+    - name: Output generated release description
+      run: cat generate/release/release.md

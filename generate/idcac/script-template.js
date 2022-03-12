@@ -25,6 +25,7 @@
 // @grant        none
 // @run-at       document-end
 // ==/UserScript==
+/// @stats {{.statistics}}
 
 
 var commons = {{ .commons }};

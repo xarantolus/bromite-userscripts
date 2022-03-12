@@ -8,6 +8,7 @@
 // @grant        none
 // @run-at       document-start
 // ==/UserScript==
+/// @stats {{.statistics}}
 
 var log = function (...data) {
     console.log("[Cosmetic filters by xarantolus (v{{.version}})]:", ...data);

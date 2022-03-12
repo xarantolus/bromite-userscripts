@@ -136,6 +136,7 @@ func main() {
 		"rules":               toJSObject(compiledSelectorRules),
 		"injectionRules":      toJSObject(compiledInjectionRules),
 		"deduplicatedStrings": toJSObject(deduplicatedStrings),
+		"statistics":          fmt.Sprintf("blockers for %d domains, injected CSS rules for %d domains", len(compiledSelectorRules), len(compiledInjectionRules)),
 	})
 	if err != nil {
 		log.Fatalf("Error generating script text: %s\n", err.Error())

@@ -40,6 +40,7 @@ jobs:
         name: Automatic script generation
         tag_name: ${{ env.TAG_NAME }}
         body: "This release contains all scripts provided by this repository.\n\nPlease see [the main project page](${{ github.server_url }}/${{ github.repository }}) for a description of the scripts."
+        body_path: generate/release/release.md
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
