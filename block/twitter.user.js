@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Ad Block: Twitter
 // @namespace    xarantolus
-// @version      0.0.5
+// @version      0.0.6
 // @description  Removes sponsored tweets on Twitter
 // @author       xarantolus
 // @match        *://twitter.com/*
@@ -122,39 +122,42 @@ var scriptFun = function () {
 
     })(this);
 
-    // Whenever an ad tweet is added to the timeline, we remove it
-    ready('[data-testid="placementTracking"]', function (element) {
-        var it = element.innerText;
-        // Video players also have this id, so we only remove those that seem like sponsored stuff
-        if (sponsoredTranslations.some(x => it.includes(x))) {
-            element.remove();
-            log("Removed an ad tweet");
+    // soundsLikeAd returns if the given text is likely an ad
+    function soundsLikeAd(text) {
+        return sponsoredTranslations.some(x => text.includes(x))
+    }
+    // removeIfAd returns a function that gets an HTML element and removes it if it's an ad
+    function removeIfAd(adType) {
+        var remove = removeWithReason(adType);
+        return function (element) {
+            if (soundsLikeAd(element.innerText)) {
+                remove(element);
+            }
         }
-    });
+    }
+    // removeWithReason returns a function that removes an element, logging why it was removed
+    function removeWithReason(adType) {
+        return function (element) {
+            element.remove();
+            log("Removed " + adType);
+        }
+    }
+
+    // Whenever an ad tweet is added to the timeline, we remove it
+    // Video players also have this id, so we only remove those that seem like sponsored stuff
+    ready('[data-testid="placementTracking"]', removeIfAd("ad tweet"));
+
+    // On profiles, there's stuff with "Promoted tweet" headers left over
+    ready("div > h2", removeIfAd("promoted section header"));
 
     // Whenever a banner ad is added at the top of the "trending" section, we remove it
-    ready('[data-testid="eventHero"]', function (element) {
-        element.remove();
-        log("Removed trends banner ad");
-    });
+    ready('[data-testid="eventHero"]', removeWithReason("trends banner ad"));
 
     // We also want to remove sponsored trends
-    ready('[data-testid="trend"]', function (element) {
-        var it = element.innerText;
-        if (sponsoredTranslations.some(x => it.includes(x))) {
-            element.remove();
-            log("Removed sponsored ad trend " + element.innerText);
-        }
-    });
+    ready('[data-testid="trend"]', removeIfAd("sponsored trend"));
 
     // The same for sponsored follow suggestions
-    ready('[data-testid="UserCell"]', function (element) {
-        var it = element.innerText;
-        if (sponsoredTranslations.some(x => it.includes(x))) {
-            element.remove();
-            log("Removed sponsored follow " + element.innerText);
-        }
-    });
+    ready('[data-testid="UserCell"]', removeIfAd("sponsored follow suggestion"));
 
     log("All listeners attached");
 };
