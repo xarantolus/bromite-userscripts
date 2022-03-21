@@ -7,20 +7,25 @@ Here scripts are sorted by category. See below on how to install them into your 
 #### Blockers
 Bromite has a built-in ad blocker (also see my [Bromite ad blocking project](https://github.com/xarantolus/filtrite)), but some sites are very good at bypassing it. We can improve blocking on these sites using scripts.
 
-* [**Twitter**](https://github.com/xarantolus/bromite-userscripts/releases/latest/download/twitter.user.js): block ads on Twitter (sponsored tweets and sponsored trends)
-* [**I don't care about cookies**](https://github.com/xarantolus/bromite-userscripts/releases/latest/download/idcac.user.js): block all kinds of cookie prompts. 
-  * This script is based on the ["I don't care about cookies" browser extension](https://addons.mozilla.org/de/firefox/addon/i-dont-care-about-cookies/) (GPL). 
+* [**Twitter**](https://github.com/xarantolus/bromite-userscripts/releases/latest/download/twitter.user.js): block ads on Twitter (sponsored tweets, trends etc.)
+* [**I don't care about cookies**](https://github.com/xarantolus/bromite-userscripts/releases/latest/download/idcac.user.js): block all kinds of cookie prompts.
+  * This script is based on the ["I don't care about cookies" browser extension](https://addons.mozilla.org/de/firefox/addon/i-dont-care-about-cookies/) (GPL).
   * This script is automatically regenerated from time to time, keeping up to date with the latest rules from the browser extension
   * **Security consideration**: if the author of the browser extension inserts malicious code, this script would likely also contain that code
-* [**Cosmetic AdBlock**](https://github.com/xarantolus/bromite-userscripts/releases/latest/download/cosmetic.user.js): block annoying elements 
+  * In my tests, this script added around 30-100ms to the load time of websites, so its impact is really small despite the rather large size of around 1MB
+* [**Cosmetic AdBlock**](https://github.com/xarantolus/bromite-userscripts/releases/latest/download/cosmetic.user.js): block annoying elements
   * The Bromite AdBlock engine does not support cosmetic filtering, so this script implements that capability (to a very basic extent)
   * This script doesn't know about exception rules, so it will block too many elements on some pages
   * Rules are regenerated once a week from the filter lists defined in [this file](generate/cosmetic/filter-lists.txt)
+  * Do not use this script on less powerful devices
+    * In my performance tests, sites take an average of 300-400ms longer to load ("[first contentful paint](https://web.dev/fcp/)" metric) when the script is active (tests were done on a Mi Mix 2, a phone released 2017)
+    * However, it takes way more than 400ms to manually click "Decline" on an annoying popup, so I think it is a good tradeoff
+  * **Please note [issue #2](https://github.com/xarantolus/bromite-userscripts/issues/2)**: when switching between Bromite and other apps, it will be frozen for ~20 seconds after regaining focus. This might get resolved in a later version, not sure though
 
 
 ---
 
-### Installing a script 
+### Installing a script
 Make sure you have a recent version of [Bromite](https://www.bromite.org/) installed. Then you can follow these steps:
 1. At first you need to download the script file. You can do this for the scripts in this repository by holding on the link until the menu appears, then selecting "Download link"
 2. Now you can go to Bromite settings (three dots at the top right, then Settings)
@@ -36,6 +41,8 @@ Make sure you have a recent version of [Bromite](https://www.bromite.org/) insta
 
 ### Auto-generated scripts
 Some scripts are auto-generated (because they need to be regenerated from time to time to include up to date sources). The source code for the generators is in subdirectories of the [`generate`](generate/) directory.
+
+You can see statistics (e.g. number of included rules) in the [latest release](https://github.com/xarantolus/bromite-userscripts/releases/latest).
 
 ### Creating your own scripts
 You can also create your own scripts, see the [official documentation](https://github.com/bromite/bromite/wiki/UserScripts) on how to do that. You should read the [Chromium User Script Design Document](https://www.chromium.org/developers/design-documents/user-scripts) to learn about existing pitfalls.
