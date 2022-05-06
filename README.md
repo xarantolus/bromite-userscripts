@@ -14,13 +14,12 @@ Bromite has a built-in ad blocker (also see my [Bromite ad blocking project](htt
   * **Security consideration**: if the author of the browser extension inserts malicious code, this script would likely also contain that code
   * In my tests, this script added around 30-100ms to the load time of websites, so its impact is really small despite the rather large size of around 1MB
 * [**Cosmetic AdBlock**](https://github.com/xarantolus/bromite-userscripts/releases/latest/download/cosmetic.user.js): block annoying elements
-  * The Bromite AdBlock engine does not support cosmetic filtering, so this script implements that capability (to a very basic extent)
+  * The Bromite AdBlock engine does not support cosmetic filtering, so this script implements that capability (to a *very* basic extent)
   * This script doesn't know about exception rules, so it will block too many elements on some pages
   * Rules are regenerated once a week from the filter lists defined in [this file](generate/cosmetic/filter-lists.txt)
   * Do not use this script on less powerful devices
     * In my performance tests, sites take an average of 300-400ms longer to load ("[first contentful paint](https://web.dev/fcp/)" metric) when the script is active (tests were done on a Mi Mix 2, a phone released 2017)
     * However, it takes way more than 400ms to manually click "Decline" on an annoying popup, so I think it is a good tradeoff
-  * **Please note [issue #2](https://github.com/xarantolus/bromite-userscripts/issues/2)**: when switching between Bromite and other apps, it will be frozen for ~20 seconds after regaining focus. This might get resolved in a later version, not sure though
 
 
 ---
