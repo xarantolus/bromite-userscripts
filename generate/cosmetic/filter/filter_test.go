@@ -26,6 +26,11 @@ func TestParseLine(t *testing.T) {
 		{"seb.lt,seb.ee##body,html:style(height: auto !important; overflow: auto !important)", Rule{Domains: []string{"seb.lt", "seb.ee"}, InjectedCSS: "body,html{height: auto !important; overflow: auto !important}"}, true},
 		{"example.com#$#body { background-color: #333!important; }", Rule{Domains: []string{"example.com"}, InjectedCSS: "body { background-color: #333!important; }"}, true},
 
+		// Some rules I found in real files
+		{`yandex.ru#$#div[class*="_with-url-actualizer_yes"] > div.adv_type_top { display: none !important; }`, Rule{Domains: []string{"yandex.ru"}, InjectedCSS: `div[class*="_with-url-actualizer_yes"] > div.adv_type_top { display: none !important; }`}, true},
+		{"##.gdpr-box:not(body):not(html)", Rule{Domains: []string{""}, CSSSelector: ".gdpr-box:not(body):not(html)"}, true},
+		{"arm.com##.c-policies", Rule{Domains: []string{"arm.com"}, CSSSelector: ".c-policies"}, true},
+
 		// Invalid rules that should be rejected
 		// has() is not supported by chromium
 		{"example.com##.ad:has(.child)", Rule{}, false},

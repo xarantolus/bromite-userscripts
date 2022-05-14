@@ -3,7 +3,7 @@ name: Auto-generate scripts
 on:
   push:
     branches: [ main ]
-    paths: 
+    paths:
       - "generate/**"
       - ".github/workflows/**"
 
@@ -24,6 +24,12 @@ jobs:
       with:
         go-version: ^1.17
 
+    - name: "Run generator tests"
+      shell: bash
+      run: |
+        sudo bash ./test.sh 2>&1
+      working-directory: generate
+
     - name: "Run regeneration script"
       shell: bash
       run: |
@@ -31,7 +37,7 @@ jobs:
       working-directory: generate
 
     - name: Generate tag name
-      run: echo "TAG_NAME=$(date +%F-%H-%M)" >> $GITHUB_ENV  
+      run: echo "TAG_NAME=$(date +%F-%H-%M)" >> $GITHUB_ENV
 
     - name: Release scripts
       uses: softprops/action-gh-release@v1
@@ -48,6 +54,6 @@ jobs:
       uses: dev-drprasad/delete-older-releases@v0.2.0
       with:
         keep_latest: 2
-        delete_tags: true 
+        delete_tags: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

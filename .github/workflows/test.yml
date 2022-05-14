@@ -16,13 +16,19 @@ jobs:
       with:
         go-version: ^1.17
 
+    - name: "Run generator tests"
+      shell: bash
+      run: |
+        sudo bash ./test.sh 2>&1
+      working-directory: generate
+
     - name: "Run regeneration script"
       shell: bash
       run: |
         sudo bash ./generate-all.sh 2>&1
       working-directory: generate
 
-    - name: List output directory 
+    - name: List output directory
       run: ls -lsh block
 
     - name: Output generated release description
