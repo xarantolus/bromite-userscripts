@@ -13,6 +13,7 @@ func TestParseLine(t *testing.T) {
 	}{
 		// General rules should have the domain "", as that will be used in the script to inject them in all pages
 		{"###cookie_alert", Rule{Domains: []string{""}, CSSSelector: "#cookie_alert"}, true},
+		{"##.cookie_alert", Rule{Domains: []string{""}, CSSSelector: ".cookie_alert"}, true},
 		// Wildcard "*" is also supported
 		{"*###cookie_alert", Rule{Domains: []string{""}, CSSSelector: "#cookie_alert"}, true},
 
@@ -32,8 +33,13 @@ func TestParseLine(t *testing.T) {
 		{"arm.com##.c-policies", Rule{Domains: []string{"arm.com"}, CSSSelector: ".c-policies"}, true},
 
 		// Invalid rules that should be rejected
+
 		// has() is not supported by chromium
 		{"example.com##.ad:has(.child)", Rule{}, false},
+
+		// Other rules are either already taken care of by the built-in adblocker or are just not supported
+		{"http://example.org/", Rule{}, false},
+		{"||netdna-cdn.com^*/webfonts/", Rule{}, false},
 	}
 	for _, tt := range tests {
 		t.Run(t.Name(), func(t *testing.T) {

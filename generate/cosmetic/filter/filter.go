@@ -38,14 +38,21 @@ var (
 
 // See https://help.eyeo.com/en/adblockplus/how-to-write-filters, "Content Filters"
 func ParseLine(line string) (f Rule, ok bool) {
-	var isSpecificCSSInjection bool
-	split := strings.SplitN(line, "##", 2)
-	if len(split) != 2 {
-		split = strings.SplitN(line, "#$#", 2)
-		isSpecificCSSInjection = true
-		if len(split) != 2 {
-			return f, false
-		}
+	var isCSSInjection bool
+
+	var split []string
+	// Check which type of rule we got in this line
+	if split = strings.SplitN(line, "##", 2); len(split) == 2 {
+		// Element hiding rule
+		// Example:   domain1.com,domain2.com##.blocked-element
+		isCSSInjection = false
+	} else if split = strings.SplitN(line, "#$#", 2); len(split) == 2 {
+		// A CSS injection
+		// Example:   domain1.com,domain2.com#$#.cookie { display: none!important; }
+		isCSSInjection = true
+	} else {
+		// The statement in this line is not recognized, ignore it
+		return f, false
 	}
 
 	// We currently only support very basic filters.
@@ -65,7 +72,7 @@ func ParseLine(line string) (f Rule, ok bool) {
 		}
 		selector = ""
 		injectedStyle = matches[1] + "{" + matches[2] + "}"
-	} else if isSpecificCSSInjection {
+	} else if isCSSInjection {
 		selector = ""
 		injectedStyle = split[1]
 	} else {
