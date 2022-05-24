@@ -1,11 +1,13 @@
 package filter
 
 import (
+	"encoding/json"
 	"regexp"
 	"strings"
 	"unicode"
 
 	"github.com/andybalholm/cascadia"
+	"github.com/xarantolus/jsonextract"
 )
 
 type Rule struct {
@@ -14,6 +16,10 @@ type Rule struct {
 	CSSSelector string
 
 	InjectedCSS string
+
+	Scriptlet []string
+
+	InjectedJS string
 }
 
 func isIncompatibleSelector(s string) bool {
@@ -38,7 +44,10 @@ var (
 
 // See https://help.eyeo.com/en/adblockplus/how-to-write-filters, "Content Filters"
 func ParseLine(line string) (f Rule, ok bool) {
-	var isCSSInjection bool
+	var (
+		isCSSInjection bool
+		isJSRule       bool
+	)
 
 	var split []string
 	// Check which type of rule we got in this line
@@ -50,6 +59,8 @@ func ParseLine(line string) (f Rule, ok bool) {
 		// A CSS injection
 		// Example:   domain1.com,domain2.com#$#.cookie { display: none!important; }
 		isCSSInjection = true
+	} else if split = strings.SplitN(line, "#%#", 2); len(split) == 2 {
+		isJSRule = true
 	} else {
 		// The statement in this line is not recognized, ignore it
 		return f, false
@@ -63,22 +74,36 @@ func ParseLine(line string) (f Rule, ok bool) {
 
 	var (
 		injectedStyle string
-		selector      = split[1]
+		selector      string
+		scriptletArgs []string
 	)
-	if strings.Contains(split[1], ":style") {
-		matches := injectedStyleRegex.FindStringSubmatch(split[1])
-		if len(matches) != 3 {
-			return f, false
+	if isJSRule {
+		if strings.HasPrefix(split[1], "//scriptlet(") && strings.HasSuffix(split[1], ")") {
+			var rawArgs = split[1][12 : len(split[1])-1]
+			parsedArgs, err := parseScriptletArgs(rawArgs)
+			if err != nil {
+				return
+			}
+
+			scriptletArgs = parsedArgs
 		}
-		selector = ""
-		injectedStyle = matches[1] + "{" + matches[2] + "}"
-	} else if isCSSInjection {
-		selector = ""
-		injectedStyle = split[1]
 	} else {
-		// Make sure we only get valid selectors
-		if isIncompatibleSelector(selector) {
-			return f, false
+		selector = split[1]
+		if strings.Contains(split[1], ":style") {
+			matches := injectedStyleRegex.FindStringSubmatch(split[1])
+			if len(matches) != 3 {
+				return f, false
+			}
+			selector = ""
+			injectedStyle = matches[1] + "{" + matches[2] + "}"
+		} else if isCSSInjection {
+			selector = ""
+			injectedStyle = split[1]
+		} else {
+			// Make sure we only get valid selectors
+			if isIncompatibleSelector(selector) {
+				return f, false
+			}
 		}
 	}
 
@@ -97,5 +122,17 @@ func ParseLine(line string) (f Rule, ok bool) {
 		Domains:     domains,
 		CSSSelector: selector,
 		InjectedCSS: injectedStyle,
+		Scriptlet:   scriptletArgs,
 	}, true
+}
+
+// parseScriptletArgs can parse a string like
+// `"prevent-setTimeout", "f.parentNode.removeChild(f)", '100'`
+// into a string slice, removing the quotes
+func parseScriptletArgs(innerScriptletStr string) (args []string, err error) {
+	var dataReader = strings.NewReader("[" + innerScriptletStr + "]")
+
+	return args, jsonextract.Reader(dataReader, func(data []byte) error {
+		return json.Unmarshal(data, &args)
+	})
 }

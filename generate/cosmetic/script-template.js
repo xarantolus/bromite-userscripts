@@ -10,7 +10,7 @@
 // ==/UserScript==
 /// @stats {{.statistics}}
 {
-    let log = function (...data) {
+    let userscriptLog = function (...data) {
         console.log("[Cosmetic filters by xarantolus (v{{.version}})]:", ...data);
     }
 
@@ -24,8 +24,12 @@
 
     let deduplicatedStrings = {{.deduplicatedStrings }};
     let injectionRules = {{.injectionRules }};
+    let scriptletRules = {{.scriptletRules}};
     let rules = {{.rules }};
     let defaultRules = rules[""];
+
+    {{ .scriptletDefinitions }}
+    let scriptletLookupTable = {{ .scriptletLookup }};
 
 
     function getRules(host) {
@@ -36,18 +40,18 @@
         for (let i = 0; i < domainSplit.length - 1; i++) {
             let domain = domainSplit.slice(i, domainSplit.length).join(".").toLowerCase();
 
-            log("Checking if we got a rule for", domain);
+            userscriptLog("Checking if we got a rule for", domain);
 
             let rule = rules[domain];
             if (rule != null) {
                 if (typeof rule === 'number') {
                     // the selector is saved at this index in the deduplicatedRules array
                     let realRule = deduplicatedStrings[rule];
-                    log("Found deduplicated rule", rule, "for domain", domain);
+                    userscriptLog("Found deduplicated rule", rule, "for domain", domain);
                     output.push({ "s": realRule });
                 } else {
                     // It's a string that directly defines the selector
-                    log("Found normal rule for domain", domain);
+                    userscriptLog("Found normal rule for domain", domain);
                     output.push({ "s": rule });
                 }
             }
@@ -56,12 +60,18 @@
             if (injection != null) {
                 if (typeof injection === 'number') {
                     let realInjection = deduplicatedStrings[injection];
-                    log("Found deduplicated injection", injection, "for domain", domain);
+                    userscriptLog("Found deduplicated injection", injection, "for domain", domain);
                     output.push({ "i": realInjection })
                 } else {
-                    log("Found normal injection for domain", domain);
+                    userscriptLog("Found normal injection for domain", domain);
                     output.push({ "i": injection });
                 }
+            }
+
+            let scriptlets = scriptletRules[domain];
+            if (scriptlets != null) {
+                userscriptLog("Found " + scriptlets.length + " scriptlet(s) for domain", domain);
+                output.push({"scriptlets": scriptlets})
             }
         }
 
@@ -75,17 +85,18 @@
 
     let foundRules = getRules(location.host);
 
-    log("Found", foundRules.length, "rules to inject");
+    userscriptLog("Found", foundRules.length, "rules to inject");
 
     let hiddenElementsSelector = foundRules.filter(r => r["s"] != null)
         .map(r => r["s"]).join(",") + hideRules;
 
     let cssInjections = foundRules.filter(r => r["i"] != null).map(r => r["i"]).join("");
+    let scriptlets = foundRules.filter(r => r["scriptlets"] != null).flatMap(r => r["scriptlets"]);
 
     let pageSpecificSelectors = foundRules.filter(r => r["s"] != null && !r.isDefault)
         .map(r => r["s"]).join(",");
 
-    log("Page specific selectors:", (pageSpecificSelectors || "(none)"))
+    userscriptLog("Page specific selectors:", (pageSpecificSelectors || "(none)"))
 
     // Source: https://stackoverflow.com/a/61747276
     function elementReady(selector) {
@@ -110,12 +121,44 @@
     function hidePageSpecificElements(reason) {
         if (pageSpecificSelectors.length == 0) return;
 
-        log("Searching for elements (" + reason + ")")
+        userscriptLog("Searching for elements (" + reason + ")")
         let elems = [...document.querySelectorAll(pageSpecificSelectors)];
         elems.forEach(function (elem) {
             elem.setAttribute("style", hiddenStyle);
         });
-        log("Tried hiding", elems.length, "page-specific elements");
+        userscriptLog("Tried hiding", elems.length, "page-specific elements");
+    }
+
+    function runScriptlets() {
+        for (let idx = 0; idx < scriptlets.length; idx++) {
+            const scriptletName = scriptlets[idx][0];
+            const scriptletArgs = scriptlets[idx].slice(1);
+
+            let scriptletFunction = scriptletLookupTable[scriptletName];
+            if (!scriptletFunction) {
+                userscriptLog("could not find scriptlet function for " + scriptletName);
+                continue;
+            }
+
+            userscriptLog("Running scriptlet '" + scriptletName + "' with args " + scriptletArgs);
+
+            // Now actually run the scriptlet function we found
+            try {
+                let res = scriptletFunction({
+                    "name": scriptletName,
+                    "args": scriptletArgs,
+                    "engine": "",
+                    "version": "1.0.0",
+                    "verbose": true,
+                    "ruleText": "(rule text not available)"
+                }, scriptletArgs);
+                if (res) {
+                    userscriptLog("Scriptlet returned " + res);
+                }
+            }catch(e) {
+                userscriptLog("Running scriptlet: " + e);
+            }
+        }
     }
 
     // Now we have hidden a lot of stuff using rules. However, some sites still display elements
@@ -143,12 +186,27 @@
     })
 
     elementReady('head').then((_) => {
-        injectStyle(hiddenElementsSelector);
-        log("Injected combined style");
+        try {
+            injectStyle(hiddenElementsSelector);
+            userscriptLog("Injected combined style");
+        } catch(e) {
+            userscriptLog("Error injecting combined style: " + e);
+        }
 
         if (cssInjections.length > 0) {
-            injectStyle(cssInjections);
-            log("Also injected additional styles (usually fixes for scrolling issues)")
+            try {
+                injectStyle(cssInjections);
+                userscriptLog("Also injected additional styles (usually fixes for scrolling issues)")
+            } catch (e) {
+                userscriptLog("Error injecting additional styles: " + e);
+            }
+        }
+
+        try {
+            runScriptlets();
+            userscriptLog("Ran scriptlets");
+        } catch (e) {
+            userscriptLog("Error running scriptlets: " + e);
         }
     });
 }

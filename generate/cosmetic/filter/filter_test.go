@@ -32,6 +32,20 @@ func TestParseLine(t *testing.T) {
 		{"##.gdpr-box:not(body):not(html)", Rule{Domains: []string{""}, CSSSelector: ".gdpr-box:not(body):not(html)"}, true},
 		{"arm.com##.c-policies", Rule{Domains: []string{"arm.com"}, CSSSelector: ".c-policies"}, true},
 
+		// AdGuard scriptlet rules
+		{"m.youtube.com#%#//scriptlet('set-cookie-reload', 'visitor', '1')", Rule{
+			Domains:   []string{"m.youtube.com"},
+			Scriptlet: []string{"set-cookie-reload", "visitor", "1"},
+		}, true},
+		{"foromtb.com#%#//scriptlet('prevent-setTimeout', 'f.parentNode.removeChild(f)', '100')", Rule{
+			Domains:   []string{"foromtb.com"},
+			Scriptlet: []string{"prevent-setTimeout", "f.parentNode.removeChild(f)", "100"},
+		}, true},
+		{`foromtb.com#%#//scriptlet("prevent-setTimeout", "f.parentNode.removeChild(f)", '100')`, Rule{
+			Domains:   []string{"foromtb.com"},
+			Scriptlet: []string{"prevent-setTimeout", "f.parentNode.removeChild(f)", "100"},
+		}, true},
+
 		// Invalid rules that should be rejected
 
 		// has() is not supported by chromium

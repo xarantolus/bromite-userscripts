@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"cosmetic/filter"
+	"cosmetic/scriptlets"
 	"cosmetic/util"
 )
 
@@ -31,8 +32,9 @@ func toJSObject(x interface{}) string {
 
 func main() {
 	var (
-		inputLists   = flag.String("input", "filter-lists.txt", "Path to file that defines URLs to blocklists")
-		scriptTarget = flag.String("output", "cosmetic.user.js", "Path to output file")
+		inputLists         = flag.String("input", "filter-lists.txt", "Path to file that defines URLs to blocklists")
+		scriptletsJSONPath = flag.String("scriptlets", "scriptlets.corelibs.json", "Path to scriptlets.corelibs.json file built from https://github.com/AdguardTeam/Scriptlets")
+		scriptTarget       = flag.String("output", "cosmetic.user.js", "Path to output file")
 	)
 	flag.Parse()
 
@@ -45,6 +47,11 @@ func main() {
 	filterURLs, err := util.ReadListFile(*inputLists)
 	if err != nil {
 		log.Fatalf("cannot load list of filter URLs: %s\n", err.Error())
+	}
+
+	scriptletLookup, scriptletDefinitions, err := scriptlets.Parse(*scriptletsJSONPath)
+	if err != nil {
+		log.Fatalf("cannot load scriptlets: %s\n", err.Error())
 	}
 
 	tempDir, err := ioutil.TempDir("", "cosmetic-filter-*")
@@ -98,6 +105,7 @@ func main() {
 	var (
 		compiledSelectorRules  = map[string]interface{}{}
 		compiledInjectionRules = map[string]interface{}{}
+		compiledScriptlets     = map[string][][]string{}
 	)
 	for domain, filter := range lookupTable {
 		if len(filter.Selectors) > 0 {
@@ -117,6 +125,9 @@ func main() {
 				compiledInjectionRules[domain] = joined
 			}
 		}
+		if len(filter.Scriptlets) > 0 {
+			compiledScriptlets[domain] = filter.Scriptlets
+		}
 	}
 
 	fmt.Printf("Combined them for %d domains\n", len(compiledSelectorRules))
@@ -132,11 +143,14 @@ func main() {
 	}
 
 	err = scriptTemplate.Execute(outputFile, map[string]string{
-		"version":             time.Now().Format("2006.01.02"),
-		"rules":               toJSObject(compiledSelectorRules),
-		"injectionRules":      toJSObject(compiledInjectionRules),
-		"deduplicatedStrings": toJSObject(deduplicatedStrings),
-		"statistics":          fmt.Sprintf("blockers for %d domains, injected CSS rules for %d domains", len(compiledSelectorRules), len(compiledInjectionRules)),
+		"version":              time.Now().Format("2006.01.02"),
+		"rules":                toJSObject(compiledSelectorRules),
+		"injectionRules":       toJSObject(compiledInjectionRules),
+		"scriptletRules":       toJSObject(compiledScriptlets),
+		"deduplicatedStrings":  toJSObject(deduplicatedStrings),
+		"scriptletDefinitions": scriptletDefinitions,
+		"scriptletLookup":      scriptlets.TableToJS(scriptletLookup),
+		"statistics":           fmt.Sprintf("blockers for %d domains, injected CSS rules for %d domains", len(compiledSelectorRules), len(compiledInjectionRules)),
 	})
 	if err != nil {
 		log.Fatalf("Error generating script text: %s\n", err.Error())
