@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"cosmetic/filter"
+	"cosmetic/topdomains"
 	"cosmetic/util"
 )
 
@@ -31,10 +32,20 @@ func toJSObject(x interface{}) string {
 
 func main() {
 	var (
-		inputLists   = flag.String("input", "filter-lists.txt", "Path to file that defines URLs to blocklists")
-		scriptTarget = flag.String("output", "cosmetic.user.js", "Path to output file")
+		inputLists     = flag.String("input", "filter-lists.txt", "Path to file that defines URLs to blocklists")
+		scriptTarget   = flag.String("output", "cosmetic.user.js", "Path to output file")
+		topDomainsPath = flag.String("top", "", "Path to file downloaded from http://s3-us-west-1.amazonaws.com/umbrella-static/index.html")
 	)
 	flag.Parse()
+
+	var topDomains *topdomains.TopDomainStorage
+	if strings.TrimSpace(*topDomainsPath) != "" {
+		tdm, err := topdomains.FromFile(*topDomainsPath)
+		if err != nil {
+			log.Fatalf("Reading top domains from file: %v", err)
+		}
+		topDomains = &tdm
+	}
 
 	scriptTemplateContent, err := ioutil.ReadFile("script-template.js")
 	if err != nil {
@@ -70,6 +81,23 @@ func main() {
 	fmt.Printf("Found %d filters in these files\n", len(filters))
 
 	lookupTable := filter.Combine(filters)
+
+	// This happens only for the "lite" version of the script
+	if topDomains != nil {
+		// Now only keep the filters for top/important domains
+		topDomainLookupTable := make(map[string]filter.CombineResult)
+		for domain, filter := range lookupTable {
+			if topDomains.Contains(domain) {
+				topDomainLookupTable[domain] = filter
+			}
+		}
+		fmt.Printf("Selected %d top domains from %d domains with available filters\n", len(topDomainLookupTable), len(lookupTable))
+
+		// Also keep the default/general rules for all pages
+		topDomainLookupTable[""] = lookupTable[""]
+
+		lookupTable = topDomainLookupTable
+	}
 
 	var duplicateCount = map[string]int{}
 	for _, f := range lookupTable {
@@ -131,12 +159,13 @@ func main() {
 		log.Fatalf("could not write auto generated message: %s\n", err.Error())
 	}
 
-	err = scriptTemplate.Execute(outputFile, map[string]string{
+	err = scriptTemplate.Execute(outputFile, map[string]interface{}{
 		"version":             time.Now().Format("2006.01.02"),
 		"rules":               toJSObject(compiledSelectorRules),
 		"injectionRules":      toJSObject(compiledInjectionRules),
 		"deduplicatedStrings": toJSObject(deduplicatedStrings),
 		"statistics":          fmt.Sprintf("blockers for %d domains, injected CSS rules for %d domains", len(compiledSelectorRules), len(compiledInjectionRules)),
+		"isLite":              topDomains != nil,
 	})
 	if err != nil {
 		log.Fatalf("Error generating script text: %s\n", err.Error())

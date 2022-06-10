@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Cosmetic Ad Block for Bromite
+// @name         Cosmetic Ad Block for Bromite{{if .isLite}} (Lite){{end}}
 // @namespace    xarantolus
 // @version      {{.version}}
-// @description  Blocks annoying elements in pages, sourced from many different filter lists
+// @description  Blocks annoying elements in {{if .isLite}}top 1M domains{{else}}pages{{end}}, sourced from many different filter lists
 // @author       xarantolus
 // @match        *://*/*
 // @grant        none
@@ -11,7 +11,7 @@
 /// @stats {{.statistics}}
 {
     let log = function (...data) {
-        console.log("[Cosmetic filters by xarantolus (v{{.version}})]:", ...data);
+        console.log("[Cosmetic filters by xarantolus (v{{.version}} {{if .isLite}}lite{{else}}full{{end}})]:", ...data);
     }
 
 
