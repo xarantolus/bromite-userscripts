@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -13,7 +14,11 @@ type TopDomainStorage struct {
 	topDomains map[string]struct{}
 }
 
-func FromFile(path string) (t TopDomainStorage, err error) {
+func (t TopDomainStorage) Len() int {
+	return len(t.topDomains)
+}
+
+func FromFile(path string, max int) (t TopDomainStorage, err error) {
 	f, err := os.Open(path)
 	if err != nil {
 		return
@@ -24,7 +29,10 @@ func FromFile(path string) (t TopDomainStorage, err error) {
 
 	tdm := make(map[string]struct{})
 
-	var line []string
+	var (
+		line       []string
+		popularity int
+	)
 	for {
 		line, err = r.Read()
 		if err != nil {
@@ -35,7 +43,14 @@ func FromFile(path string) (t TopDomainStorage, err error) {
 			return
 		}
 
-		tdm[strings.TrimPrefix(line[1], "www.")] = struct{}{}
+		popularity, err = strconv.Atoi(line[0])
+		if err != nil {
+			err = fmt.Errorf("parsing popularity: %w", err)
+			return
+		}
+		if popularity < max {
+			tdm[strings.TrimPrefix(line[1], "www.")] = struct{}{}
+		}
 	}
 	if errors.Is(err, io.EOF) {
 		err = nil

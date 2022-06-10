@@ -35,16 +35,19 @@ func main() {
 		inputLists     = flag.String("input", "filter-lists.txt", "Path to file that defines URLs to blocklists")
 		scriptTarget   = flag.String("output", "cosmetic.user.js", "Path to output file")
 		topDomainsPath = flag.String("top", "", "Path to file downloaded from http://s3-us-west-1.amazonaws.com/umbrella-static/index.html")
+		topDomainCount = flag.Int("topCount", 1_000_000, "Include up to this rank of highest-ranking top domains, only makes sense with -top")
 	)
 	flag.Parse()
 
 	var topDomains *topdomains.TopDomainStorage
 	if strings.TrimSpace(*topDomainsPath) != "" {
-		tdm, err := topdomains.FromFile(*topDomainsPath)
+		tdm, err := topdomains.FromFile(*topDomainsPath, *topDomainCount)
 		if err != nil {
 			log.Fatalf("Reading top domains from file: %v", err)
 		}
 		topDomains = &tdm
+
+		fmt.Printf("Read %d top domains\n", tdm.Len())
 	}
 
 	scriptTemplateContent, err := ioutil.ReadFile("script-template.js")
@@ -166,6 +169,7 @@ func main() {
 		"deduplicatedStrings": toJSObject(deduplicatedStrings),
 		"statistics":          fmt.Sprintf("blockers for %d domains, injected CSS rules for %d domains", len(compiledSelectorRules), len(compiledInjectionRules)),
 		"isLite":              topDomains != nil,
+		"topDomainCount":      *topDomainCount,
 	})
 	if err != nil {
 		log.Fatalf("Error generating script text: %s\n", err.Error())

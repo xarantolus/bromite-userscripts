@@ -11,5 +11,5 @@ unzip -o "top1m.zip" -d "top1m"
 # Run the normal generator
 go run main.go -input "filter-lists.txt" -output "$SCRIPT_PATH"
 
-# Run the generator with top domains
-go run main.go -input "filter-lists.txt" -top top1m/*.csv -output "$LITE_SCRIPT_PATH"
+# Run the generator with top 250_000 domains
+go run main.go -input "filter-lists.txt" -top top1m/*.csv -topCount 250_000 -output "$LITE_SCRIPT_PATH"

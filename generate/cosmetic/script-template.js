@@ -2,7 +2,7 @@
 // @name         Cosmetic Ad Block for Bromite{{if .isLite}} (Lite){{end}}
 // @namespace    xarantolus
 // @version      {{.version}}
-// @description  Blocks annoying elements in {{if .isLite}}top 1M domains{{else}}pages{{end}}, sourced from many different filter lists
+// @description  Blocks annoying elements in {{if .isLite}}top {{.topDomainCount}} domains{{else}}pages{{end}}, sourced from many different filter lists
 // @author       xarantolus
 // @match        *://*/*
 // @grant        none
