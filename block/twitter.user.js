@@ -1,13 +1,15 @@
 // ==UserScript==
 // @name         Ad Block: Twitter
 // @namespace    xarantolus
-// @version      0.0.6
+// @version      0.0.7
 // @description  Removes sponsored tweets on Twitter
 // @author       xarantolus
 // @match        *://twitter.com/*
 // @match        *://*.twitter.com/*
 // @grant        none
 // @run-at       document-end
+// @homepage     https://userscripts.010.one
+// @url_source   https://github.com/xarantolus/bromite-userscripts/releases/latest/download/twitter.user.js
 // ==/UserScript==
 
 var log = function (...data) {
@@ -17,7 +19,7 @@ var log = function (...data) {
 var scriptFun = function () {
     // Array source: https://github.com/jodylecompte/twitter-adblock-chrome (MIT Licensed)
     // The .filter at the end is there because of a Bromite bug (https://github.com/bromite/bromite/issues/792#issuecomment-974766145)
-    // that replaces multi-byte characters with empty characters. An empty entry would lead to all trends being filtered out, which is not what we want 
+    // that replaces multi-byte characters with empty characters. An empty entry would lead to all trends being filtered out, which is not what we want
     var sponsoredTranslations = [
         "مُروَّج", // Arabic - العربية
         "مُروَّج", // Arabic (Feminine) - العربية (مؤنث)
@@ -106,7 +108,7 @@ var scriptFun = function () {
                 elements = doc.querySelectorAll(listener.selector);
                 for (var j = 0, jLen = elements.length, element; j < jLen; j++) {
                     element = elements[j];
-                    // Make sure the callback isn't invoked with the 
+                    // Make sure the callback isn't invoked with the
                     // same element more than once
                     if (!element.ready) {
                         element.ready = true;

@@ -7,6 +7,8 @@
 // @match        *://*/*
 // @grant        none
 // @run-at       document-start
+// @homepage     https://userscripts.010.one
+// @url_source   https://github.com/xarantolus/bromite-userscripts/releases/latest/download/cosmetic{{if .isLite}}-lite{{end}}.user.js
 // ==/UserScript==
 /// @stats {{.statistics}}
 {

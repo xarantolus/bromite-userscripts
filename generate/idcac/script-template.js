@@ -24,6 +24,8 @@
 // @match        *://*/*
 // @grant        none
 // @run-at       document-end
+// @homepage     https://userscripts.010.one
+// @url_source   https://github.com/xarantolus/bromite-userscripts/releases/latest/download/idcac.user.js
 // ==/UserScript==
 /// @stats {{.statistics}}
 
@@ -51,7 +53,7 @@ var scriptFun = function () {
 
     // findRules finds all matching rule for this host
     function findRules(host) {
-        // Try to find rules for this host. E.g. 
+        // Try to find rules for this host. E.g.
         // if the domain is "sub.domain.com" it will first try
         // "sub.domain.com", then "domain.com"
 
