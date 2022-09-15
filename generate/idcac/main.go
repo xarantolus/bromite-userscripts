@@ -1,9 +1,11 @@
 package main
 
 import (
+	"crypto/sha256"
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -14,9 +16,10 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/xarantolus/jsonextract"
 	"idcac/amo"
 	"idcac/extract"
+
+	"github.com/xarantolus/jsonextract"
 )
 
 func readVersion(extBaseDir string) (s string, err error) {
@@ -95,6 +98,22 @@ func mapFunctions(fnts map[int]string) string {
 	return sb.String()
 }
 
+func hashFile(path string) (hex string, err error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	h := sha256.New()
+	_, err = io.Copy(h, f)
+	if err != nil {
+		return
+	}
+
+	return fmt.Sprintf("%x", h.Sum(nil)), nil
+}
+
 const extensionURL = "https://addons.mozilla.org/en/firefox/addon/i-dont-care-about-cookies/"
 
 func main() {
@@ -131,6 +150,17 @@ func main() {
 	if err != nil {
 		log.Fatalf("extracting extension zip: %s\n", err.Error())
 	}
+
+	licenseHash, err := hashFile(filepath.Join(extensionBaseDir, "LICENSE"))
+	if err != nil {
+		log.Fatalf("cannot hash license file: %s\n", err.Error())
+	}
+
+	// In case the license changes, I want to be notified by GH Actions
+	if licenseHash != "9ab30fb6fc1e6366fa1dda7231d6424893c3c77a48a6b68309bbcbcd1eaeeb16" {
+		log.Fatalf("license hash does not match: %s\n", licenseHash)
+	}
+	log.Println("License hash matches")
 
 	f, err := os.Open(filepath.Join(extensionBaseDir, "data/rules.js"))
 	if err != nil {
