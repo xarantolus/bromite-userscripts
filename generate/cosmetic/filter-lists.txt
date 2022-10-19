@@ -8,8 +8,8 @@ https://github.com/uBlockOrigin/uAssets/raw/master/filters/badware.txt
 https://github.com/uBlockOrigin/uAssets/raw/master/filters/privacy.txt
 https://github.com/uBlockOrigin/uAssets/raw/master/filters/resource-abuse.txt
 https://github.com/uBlockOrigin/uAssets/raw/master/filters/unbreak.txt
-https://easylist.to/easylist/easylist.txt
-https://easylist.to/easylist/easyprivacy.txt
+https://secure.fanboy.co.nz/easylist.txt
+https://secure.fanboy.co.nz/easyprivacy.txt
 https://pgl.yoyo.org/adservers/serverlist.php?hostformat=adblockplus&showintro=1&mimetype=plaintext
 
 # Annoying Elements, Cookie promts etc.
@@ -25,13 +25,14 @@ https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-20
 https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2022.txt
 https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2021.txt
 https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/annoyances.txt
+
 https://secure.fanboy.co.nz/fanboy-annoyance.txt
 https://secure.fanboy.co.nz/fanboy-cookiemonster.txt
 https://filters.adtidy.org/extension/ublock/filters/14.txt
 
 # Filters against anti-adblock popups
 https://easylist-downloads.adblockplus.org/antiadblockfilters.txt
-https://raw.githubusercontent.com/reek/anti-adblock-killer/master/anti-adblock-killer-filters.txt
+https://raw.githubusercontent.com/bogachenko/fuckfuckadblock/master/fuckfuckadblock.txt
 
 # Other uBlock Origin filters
 https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/privacy.txt
@@ -44,12 +45,16 @@ https://raw.githubusercontent.com/AdguardTeam/cname-trackers/master/combined_dis
 https://filters.adtidy.org/extension/ublock/filters/2.txt
 https://filters.adtidy.org/extension/ublock/filters/3.txt
 https://filters.adtidy.org/extension/ublock/filters/11.txt
+https://filters.adtidy.org/extension/ublock/filters/19.txt
+https://filters.adtidy.org/extension/ublock/filters/20.txt
+https://filters.adtidy.org/extension/ublock/filters/21.txt
+https://filters.adtidy.org/extension/ublock/filters/22.txt
 
 # Third party fonts
 https://fanboy.co.nz/fanboy-antifonts.txt
 
 # Other third-party tracking
-https://easylist.to/easylist/fanboy-social.txt
+https://fanboy.co.nz/fanboy-social.txt
 
 # Annoyances on Twitter
 https://raw.githubusercontent.com/robonxt/CleanYourTwitter/master/CleanYourTwitter.txt
@@ -60,41 +65,41 @@ https://raw.githubusercontent.com/xarantolus/nervig/main/annoyances.txt
 # ----------------------------------
 # Now some region-specific lists
 # ----------------------------------
-https://easylist.to/easylistgermany/easylistgermany.txt
+https://easylist-downloads.adblockplus.org/easylistgermany.txt
 
 # Adguard lists from https://github.com/AdguardTeam/AdguardFilters
 https://filters.adtidy.org/extension/ublock/filters/6.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/sections/annoyances.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/sections/antiadblock.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/sections/cookies_general.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/sections/cookies_specific.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/sections/cookies_whitelist.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/sections/css_extended.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/sections/low-attendance.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/sections/mobile-app.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/sections/popups.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/sections/push-notifications.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/sections/self-promo.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/sections/subscriptions.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/sections/tweaks.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/sections/widgets.txt 
 
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/EnglishFilter/sections/adservers.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/EnglishFilter/sections/adservers_firstparty.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/EnglishFilter/sections/antiadblock.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/EnglishFilter/sections/banner_sizes.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/EnglishFilter/sections/cname_adservers.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/EnglishFilter/sections/content_blocker.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/EnglishFilter/sections/cryptominers.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/EnglishFilter/sections/css_extended.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/EnglishFilter/sections/foreign.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/EnglishFilter/sections/general_elemhide.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/EnglishFilter/sections/general_extensions.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/EnglishFilter/sections/general_url.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/EnglishFilter/sections/replace.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/EnglishFilter/sections/specific.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/EnglishFilter/sections/whitelist.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/EnglishFilter/sections/whitelist_stealth.txt 
+https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/Cookies/sections/cookies_general.txt
+https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/Cookies/sections/cookies_specific.txt
+https://github.com/AdguardTeam/AdguardFilters/raw/master/AnnoyancesFilter/Widgets/sections/widgets.txt
+https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/MobileApp/sections/mobile-app_general.txt
+https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/MobileApp/sections/mobile-app_specific.txt
+https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/Other/sections/tweaks.txt
+https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/Other/sections/annoyances.txt
+https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/Other/sections/self-promo.txt
+https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/Popups/sections/antiadblock.txt
+https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/Popups/sections/subscriptions_specific.txt
+https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/Popups/sections/subscriptions_general.txt
+https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/Popups/sections/push-notifications_specific.txt
+https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/Popups/sections/push-notifications_general.txt
+https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/Popups/sections/popups_specific.txt
+https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/Popups/sections/popups_general.txt
+
+https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/BaseFilter/sections/adservers.txt
+https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/BaseFilter/sections/adservers_firstparty.txt
+https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/BaseFilter/sections/antiadblock.txt
+https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/BaseFilter/sections/banner_sizes.txt
+https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/BaseFilter/sections/cname_adservers.txt
+https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/BaseFilter/sections/content_blocker.txt
+https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/BaseFilter/sections/cryptominers.txt
+https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/BaseFilter/sections/css_extended.txt
+https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/BaseFilter/sections/foreign.txt
+https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/BaseFilter/sections/general_elemhide.txt
+https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/BaseFilter/sections/general_extensions.txt
+https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/BaseFilter/sections/general_url.txt
+https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/BaseFilter/sections/replace.txt
+https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/BaseFilter/sections/specific.txt
 
 https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/MobileFilter/sections/adservers.txt
 https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/MobileFilter/sections/antiadblock.txt
@@ -105,4 +110,3 @@ https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/MobileFilter
 https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/MobileFilter/sections/replace.txt
 https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/MobileFilter/sections/specific_app.txt
 https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/MobileFilter/sections/specific_web.txt
-https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/MobileFilter/sections/whitelist.txt 
