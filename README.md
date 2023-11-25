@@ -7,7 +7,6 @@ Here scripts are sorted by category. See below on how to install them into your 
 #### Blockers
 Bromite has a built-in ad blocker (also see my [Bromite ad blocking project](https://github.com/xarantolus/filtrite)), but some sites are very good at bypassing it. We can improve blocking on these sites using scripts.
 
-* [**Twitter**](https://github.com/xarantolus/bromite-userscripts/releases/latest/download/twitter.user.js): block ads on Twitter (sponsored tweets, trends etc.)
 * [**I don't care about cookies**](https://github.com/xarantolus/bromite-userscripts/releases/latest/download/idcac.user.js): block all kinds of cookie prompts.
   * This script is based on the ["I don't care about cookies" browser extension](https://addons.mozilla.org/de/firefox/addon/i-dont-care-about-cookies/) (GPL).
   * This script is automatically regenerated from time to time, keeping up to date with the latest rules from the browser extension
@@ -21,6 +20,10 @@ Bromite has a built-in ad blocker (also see my [Bromite ad blocking project](htt
   * Do not use the normal script on less powerful devices
     * In my performance tests, sites take an average of 300-400ms longer to load ("[first contentful paint](https://web.dev/fcp/)" metric) when the script is active (tests were done on a Mi Mix 2, a phone released 2017)
     * However, it takes way more than 400ms to manually click "Decline" on an annoying popup, so I think it is a good tradeoff
+
+**Deprecated**
+* [**Twitter**](https://github.com/xarantolus/bromite-userscripts/releases/latest/download/twitter.user.js): block ads on Twitter (sponsored tweets, trends etc.)
+  * This script is no longer maintained as I no longer use Twitter - please feel free to contribute the necessary changes if it no longer works
 
 
 ---
