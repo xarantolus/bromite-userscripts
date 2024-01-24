@@ -1,25 +1,13 @@
-# Bromite User Scripts
+# [Bromite User Scripts](https://userscripts.010.one)
 This is a repository that hosts [User Scripts](https://github.com/bromite/bromite/wiki/UserScripts) for [Bromite](https://www.bromite.org/) and [Cromite](https://www.cromite.org/), which are browsers for Android. They might also work on other mobile or desktop browsers.
 
-### Scripts
-Here scripts are sorted by category. See below on how to install them into your browser.
+**Acknowledgement**: The filter lists for the cosmetic filter script are sourced from [collinbarrett's FilterLists](https://github.com/collinbarrett/FilterLists) project (see [filterlists.com](https://filterlists.com)). Thanks to everyone that contributes! :)
 
-#### Blockers
-Bromite has a built-in ad blocker (also see my [Bromite ad blocking project](https://github.com/xarantolus/filtrite)), but some sites are very good at bypassing it. We can improve blocking on these sites using scripts.
+Bromite has a built-in ad blocker (also see my [Bromite ad blocking project](https://github.com/xarantolus/filtrite)), but some sites are very good at bypassing it. We can improve blocking on these sites using scripts. Cromite already has a good built-in Ad Blocker.
 
-* [**I don't care about cookies**](https://github.com/xarantolus/bromite-userscripts/releases/latest/download/idcac.user.js): block all kinds of cookie prompts.
-  * This script is based on the ["I don't care about cookies" browser extension](https://addons.mozilla.org/de/firefox/addon/i-dont-care-about-cookies/) (GPL).
-  * This script is automatically regenerated from time to time, keeping up to date with the latest rules from the browser extension
-  * **Security consideration**: if the author of the browser extension inserts malicious code, this script would likely also contain that code
-  * In my tests, this script added around 30-100ms to the load time of websites, so its impact is really small despite the rather large size of around 1MB
-* [**Cosmetic AdBlock**](https://github.com/xarantolus/bromite-userscripts/releases/latest/download/cosmetic.user.js): block annoying elements
-  * You can also [**use the lite version with about half the size**](https://github.com/xarantolus/bromite-userscripts/releases/latest/download/cosmetic-lite.user.js), it only includes rules for the top 250k domains from this [top 1M domains](http://s3-us-west-1.amazonaws.com/umbrella-static/index.html) dataset
-  * The Bromite AdBlock engine does not support cosmetic filtering, so this script implements that capability (to a *very* basic extent)
-  * This script doesn't know about exception rules, so it will block too many elements on some pages
-  * Rules are regenerated once a week from the filter lists defined in [this file](generate/cosmetic/filter-lists.txt)
-  * Do not use the normal script on less powerful devices
-    * In my performance tests, sites take an average of 300-400ms longer to load ("[first contentful paint](https://web.dev/fcp/)" metric) when the script is active (tests were done on a Mi Mix 2, a phone released 2017)
-    * However, it takes way more than 400ms to manually click "Decline" on an annoying popup, so I think it is a good tradeoff
+### Downloads
+You can get an overview and download links on [**the website**](https://userscripts.010.one).
+
 
 **Deprecated**
 * [**Twitter**](https://github.com/xarantolus/bromite-userscripts/releases/latest/download/twitter.user.js): block ads on Twitter (sponsored tweets, trends etc.)
@@ -30,15 +18,15 @@ Bromite has a built-in ad blocker (also see my [Bromite ad blocking project](htt
 
 ### Installing a script
 Make sure you have a recent version of [Bromite](https://www.bromite.org/) installed. Then you can follow these steps:
-1. At first you need to download the script file. You can do this for the scripts in this repository by holding on the link until the menu appears, then selecting "Download link"
-2. Now you can go to Bromite settings (three dots at the top right, then Settings)
-3. Scroll down to open the "User Scripts" section under the "Advanced" menu
+1. At first you need to download a script file from the project website
+2. Click the "Open" button that appears once the script has been downloaded
+3. Confirm the installation
 4. Make sure "Activate User Scripts" is enabled/on
-5. Select the "Add script" button
-6. Now select the file you just downloaded (likely in your downloads directory)
-7. Confirm the installation
-8. (Optionally) Click the "View source" button to verify the content of the script
-9. Enable the newly installed script using the switch at the left side
+5. Enable the newly installed script using the switch at the left side
+
+You might need to go to settings (via the three dots at the top right), then "User Scripts" to enable the "Activate User Scripts" option first.
+
+If the browser doesn't prompt you to install the script, you can also just go to the User Script settings and add the file manually.
 
 ---
 
