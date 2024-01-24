@@ -345,4 +345,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("error writing script infos: %s\n", err.Error())
 	}
+
+	// now the same thing with jsonp
+	scriptInfosJSONP := append([]byte("jsonpCosmeticInfo("), append(scriptInfosJSON, []byte(");")...)...)
+	err = os.WriteFile(path.Join(outputDir, "cosmetic_info.jsonp"), scriptInfosJSONP, 0644)
+	if err != nil {
+		log.Fatalf("error writing script infos: %s\n", err.Error())
+	}
 }

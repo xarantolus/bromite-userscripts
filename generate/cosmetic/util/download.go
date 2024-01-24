@@ -9,12 +9,18 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
 )
 
 var httpClient = http.Client{
 	Timeout: 30 * time.Second,
 }
+
+var (
+	downloadLocks     = make(map[string]*sync.Mutex)
+	downloadLocksLock sync.Mutex
+)
 
 func DownloadURLs(inputURLs []string, tempDir string) (outputPaths []string, err error) {
 	var dlFile = func(url string, file string) (err error) {
@@ -43,12 +49,24 @@ func DownloadURLs(inputURLs []string, tempDir string) (outputPaths []string, err
 
 	for _, dlURL := range inputURLs {
 		fn := filepath.Join(tempDir, generateFilename(dlURL))
+		// Prevent multiple downloads of the same file at the same time
+		downloadLocksLock.Lock()
+		lock, ok := downloadLocks[fn]
+		if !ok {
+			lock = &sync.Mutex{}
+			downloadLocks[fn] = lock
+		}
+		downloadLocksLock.Unlock()
+		lock.Lock()
+
 		if _, err := os.Stat(fn); err == nil {
 			outputPaths = append(outputPaths, fn)
+			lock.Unlock()
 			continue
 		}
 
 		err := dlFile(dlURL, fn)
+		lock.Unlock()
 		if err != nil {
 			errCount++
 
