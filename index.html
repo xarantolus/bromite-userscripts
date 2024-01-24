@@ -53,12 +53,33 @@
 		}
 	</style>
 	<script>
+		var countriesByPopulation = ["in", "cn", "us", "id", "pk", "ng", "br", "bd", "ru", "et", "mx", "jp", "ph", "eg", "cd", "vn", "ir", "tr", "de", "th", "tz", "gb", "fr", "za", "it", "ke", "mm", "co", "kr", "ug", "sd", "es", "iq", "dz", "ar", "af", "pl", "ca", "ma", "ua", "ao", "sa", "uz", "ye", "mz", "gh", "pe", "my", "np", "mg", "ci", "ve", "cm", "ne", "au", "kp", "sy", "ml", "tw", "bf", "lk", "mw", "zm", "kz", "cl", "ro", "td", "so", "ec", "gt", "sn", "nl", "kh", "zw", "gn", "rw", "bj", "bi", "bo", "tn", "ht", "be", "do", "jo", "ss", "cu", "hn", "se", "pg", "cz", "az", "tj", "gr", "pt", "hu", "ae", "by", "il", "tg", "sl", "at", "ch", "la", "hk", "ni", "rs", "ly", "py", "kg", "bg", "tm", "sv", "cg", "sg", "dk", "cf", "sk", "fi", "lr", "no", "ps", "nz", "cr", "lb", "ie", "mr", "om", "pa", "kw", "hr", "er", "ge", "mn", "uy", "md", "pr", "ba", "gm", "al", "jm", "am", "qa", "bw", "lt", "na", "ga", "ls", "gw", "si", "mk", "lv", "gq", "tt", "bh", "tl", "ee", "mu", "cy", "sz", "dj", "re", "fj", "km", "gy", "bt", "sb", "mo", "lu", "sr", "me", "cv", "eh", "mt", "mv", "bn", "bz", "bs", "gp", "is", "mq", "yt", "vu", "gf", "pf", "nc", "bb", "st", "ws", "cw", "lc", "gu", "ki", "gd", "fm", "je", "to", "sc", "aw", "vc", "vi", "ag", "im", "ad", "dm", "ky", "bm", "gg", "gl", "fo", "mp", "kn", "tc", "sx", "as", "mh", "li", "mc", "sm", "gi", "mf", "vg", "pw", "ck", "ai", "nr", "tv", "wf", "bl", "pm", "ms", "fk", "nu", "tk", "va"];
+
+		function sortLargestCountriesFirst(countries, getCountryCode) {
+			return countries.sort((a, b) => {
+				var aCode = getCountryCode(a);
+				var bCode = getCountryCode(b);
+
+				var aIndex = countriesByPopulation.indexOf(aCode);
+				var bIndex = countriesByPopulation.indexOf(bCode);
+
+				if (aIndex === -1) {
+					return 1;
+				}
+				if (bIndex === -1) {
+					return -1;
+				}
+
+				return aIndex - bIndex;
+			});
+		}
+
 		function addLanguage(code) {
 			try {
 				var langs = JSON.parse(localStorage.getItem("languages") ||  "[]");
 				if (!langs.includes(code)) {
 					langs.push(code);
-					langs.sort();
+					langs = sortLargestCountriesFirst(langs, c => c);
 					localStorage.setItem("languages", JSON.stringify(langs));
 				}
 			}
@@ -92,7 +113,7 @@
 			// Map to two-letter format and deduplicate
 			var deduplicatedLanguages = Array.from(new Set(languages.map(lang => lang.substr(0, 2))));
 
-			return deduplicatedLanguages.sort();
+			return sortLargestCountriesFirst(deduplicatedLanguages, c => c);
 		}
 
 		var downloadPrefix = "https://github.com/xarantolus/bromite-userscripts/releases/latest/download/";
@@ -216,8 +237,7 @@
 
 			console.log(mapping);
 
-			var keys = Object.keys(mapping);
-			keys.sort();
+			var keys = sortLargestCountriesFirst(Object.keys(mapping), c => c);
 
 			var rendered = false;
 			for (var i = 0; i < keys.length; i++) {
