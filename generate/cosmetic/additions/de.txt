@@ -1,0 +1,2 @@
+https://easylist.to/easylistgermany/easylistgermany.txt
+https://filters.adtidy.org/extension/ublock/filters/6.txt

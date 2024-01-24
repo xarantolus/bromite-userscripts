@@ -93,6 +93,10 @@ func ParseLine(line string) (f Rule, ok bool) {
 		domains = []string{""}
 	}
 
+	for i := 0; i < len(domains); i++ {
+		domains[i] = strings.TrimPrefix(domains[i], "www.")
+	}
+
 	return Rule{
 		Domains:     domains,
 		CSSSelector: selector,

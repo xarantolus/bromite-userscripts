@@ -4,17 +4,23 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
+	"path"
 	"sort"
 	"strings"
+	"sync"
 	"text/template"
 	"time"
 
+	_ "embed"
+
 	"cosmetic/filter"
+	"cosmetic/filterlists"
 	"cosmetic/topdomains"
 	"cosmetic/util"
+
+	"golang.org/x/sync/errgroup"
 )
 
 func joinSorted(f []string, comma string) string {
@@ -30,51 +36,15 @@ func toJSObject(x interface{}) string {
 	return string(b)
 }
 
-func main() {
-	var (
-		inputLists     = flag.String("input", "filter-lists.txt", "Path to file that defines URLs to blocklists")
-		scriptTarget   = flag.String("output", "cosmetic.user.js", "Path to output file")
-		topDomainsPath = flag.String("top", "", "Path to file downloaded from http://s3-us-west-1.amazonaws.com/umbrella-static/index.html")
-		topDomainCount = flag.Int("topCount", 1_000_000, "Include up to this rank of highest-ranking top domains, only makes sense with -top")
-	)
-	flag.Parse()
+var (
+	//go:embed script-template.js
+	scriptTemplateRaw string
+	scriptTemplate    = template.Must(template.New("").Parse(string(scriptTemplateRaw)))
+)
 
-	var topDomains *topdomains.TopDomainStorage
-	if strings.TrimSpace(*topDomainsPath) != "" {
-		tdm, err := topdomains.FromFile(*topDomainsPath, *topDomainCount)
-		if err != nil {
-			log.Fatalf("Reading top domains from file: %v", err)
-		}
-		topDomains = &tdm
-
-		fmt.Printf("Read %d top domains\n", tdm.Len())
-	}
-
-	scriptTemplateContent, err := ioutil.ReadFile("script-template.js")
-	if err != nil {
-		log.Fatalf("reading script template file: %s\n", err.Error())
-	}
-	var scriptTemplate = template.Must(template.New("").Parse(string(scriptTemplateContent)))
-
-	filterURLs, err := util.ReadListFile(*inputLists)
-	if err != nil {
-		log.Fatalf("cannot load list of filter URLs: %s\n", err.Error())
-	}
-
-	tempDir, err := ioutil.TempDir("", "cosmetic-filter-*")
-	if err != nil {
-		log.Fatalf("creating temp dir for cosmetic filters: %s\n", err.Error())
-	}
-	defer os.RemoveAll(tempDir)
-
-	filterOutputFiles, err := util.DownloadURLs(filterURLs, tempDir)
-	if err != nil {
-		log.Fatalf("error downloading filter lists: %s\n", err.Error())
-	}
-	log.Printf("Downloaded %d filter files\n", len(filterOutputFiles))
-
+func readFilterLists(filterListFiles []string, topDomains *topdomains.TopDomainStorage) (compiledSelectorRules map[string]interface{}, compiledInjectionRules map[string]interface{}, deduplicatedStrings []string) {
 	var filters []filter.Rule
-	for _, fp := range filterOutputFiles {
+	for _, fp := range filterListFiles {
 		ff := util.FiltersFromFile(fp)
 		if len(ff) == 0 {
 			log.Printf("[Warning] No rules found in file %q\n", fp)
@@ -85,7 +55,6 @@ func main() {
 
 	lookupTable := filter.Combine(filters)
 
-	// This happens only for the "lite" version of the script
 	if topDomains != nil {
 		// Now only keep the filters for top/important domains
 		topDomainLookupTable := make(map[string]filter.CombineResult)
@@ -110,7 +79,6 @@ func main() {
 		duplicateCount[joined] = duplicateCount[joined] + 1
 	}
 
-	var deduplicatedStrings []string
 	for f, count := range duplicateCount {
 		if count > 1 {
 			deduplicatedStrings = append(deduplicatedStrings, f)
@@ -126,10 +94,8 @@ func main() {
 	// The compiled rules are either
 	// - a string, which is a css selector (usually selecting many elements)
 	// - an int, which is the index of a common rule (that was present more than once)
-	var (
-		compiledSelectorRules  = map[string]interface{}{}
-		compiledInjectionRules = map[string]interface{}{}
-	)
+	compiledSelectorRules = map[string]interface{}{}
+	compiledInjectionRules = map[string]interface{}{}
 	for domain, filter := range lookupTable {
 		if len(filter.Selectors) > 0 {
 			joined := joinSorted(filter.Selectors, ",")
@@ -149,34 +115,220 @@ func main() {
 			}
 		}
 	}
-
 	fmt.Printf("Combined them for %d domains\n", len(compiledSelectorRules))
+	return
+}
 
-	outputFile, err := os.Create(*scriptTarget)
+// if topDomains is nil, all domains are included - otherwise we generate the "lite" list
+func generateListForCountry(outputDir string, listURLs []string, countryName, countryCode string, topDomainsFilter *topdomains.TopDomainStorage) (scriptPath string, statsLine string, err error) {
+	var filename = fmt.Sprintf("cosmetic-%s.user.js", countryCode)
+	if topDomainsFilter != nil {
+		filename = fmt.Sprintf("cosmetic-%s-lite.user.js", countryCode)
+	}
+
+	compiledSelectorRules, compiledInjectionRules, deduplicatedStrings := readFilterLists(listURLs, topDomainsFilter)
+
+	scriptPath = path.Join(outputDir, filename)
+	outputFile, err := os.Create(scriptPath)
 	if err != nil {
-		log.Fatalf("creating output file: %s\n", err.Error())
+		err = fmt.Errorf("creating output file: %w", err)
+		return
 	}
 
 	_, err = outputFile.WriteString("// THIS FILE IS AUTO-GENERATED. DO NOT EDIT. See generate/cosmetic directory for more info\n")
 	if err != nil {
-		log.Fatalf("could not write auto generated message: %s\n", err.Error())
+		err = fmt.Errorf("could not write auto generated message: %w", err)
+		return
 	}
 
+	statsLine = fmt.Sprintf("blockers for %d domains, injected CSS rules for %d domains", len(compiledSelectorRules), len(compiledInjectionRules))
 	err = scriptTemplate.Execute(outputFile, map[string]interface{}{
 		"version":             time.Now().Format("2006.01.02"),
 		"rules":               toJSObject(compiledSelectorRules),
 		"injectionRules":      toJSObject(compiledInjectionRules),
 		"deduplicatedStrings": toJSObject(deduplicatedStrings),
-		"statistics":          fmt.Sprintf("blockers for %d domains, injected CSS rules for %d domains", len(compiledSelectorRules), len(compiledInjectionRules)),
-		"isLite":              topDomains != nil,
-		"topDomainCount":      *topDomainCount,
+		"statistics":          statsLine,
+		"countryName":         countryName,
+		"countryCode":         countryCode,
+		"filename":            filename,
+		"isLite":              topDomainsFilter != nil,
 	})
 	if err != nil {
-		log.Fatalf("Error generating script text: %s\n", err.Error())
+		err = fmt.Errorf("error generating script text: %w", err)
+		return
 	}
 
 	err = outputFile.Close()
 	if err != nil {
-		log.Fatalf("could not close output file: %s\n", err.Error())
+		err = fmt.Errorf("could not close output file: %w", err)
+		return
+	}
+
+	return
+}
+
+func processLanguage(lang filterlists.Language, filterLists filterlists.FilterLists, baseFilterFiles []string, urlTempDir string, outputDir string, topDomainsFilter topdomains.TopDomainStorage) (fullScriptInfo, liteScriptInfo ScriptInfo, err error) {
+	log.Printf("Processing language %q\n", lang.Name)
+
+	filterListsForLang := filterLists.ForLanguages([]filterlists.Language{lang})
+
+	var filterListURLs []string
+	for _, fl := range filterListsForLang {
+		filterListURLs = append(filterListURLs, fl.PrimaryViewURL)
+	}
+
+	codeAdditionsPath := path.Join("additions", fmt.Sprintf("%s.txt", lang.Iso6391))
+	countrySpecificAdditions, err := util.ReadListFile(codeAdditionsPath)
+	if err != nil && !os.IsNotExist(err) {
+		err = fmt.Errorf("error reading code additions file: %w", err)
+		return ScriptInfo{}, ScriptInfo{}, err
+	}
+	filterListURLs = append(filterListURLs, countrySpecificAdditions...)
+
+	filterFiles, err := util.DownloadURLs(filterListURLs, urlTempDir)
+	if err != nil {
+		// Ignore - we still have the base filters
+		log.Printf("[Warning] Error downloading filter lists for language %q: %s\n", lang.Name, err.Error())
+	}
+
+	filterFiles = append(filterFiles, baseFilterFiles...)
+
+	fullScriptPath, fullStatsLine, err := generateListForCountry(outputDir, filterFiles, lang.Name, lang.Iso6391, &topDomainsFilter)
+	if err != nil {
+		err = fmt.Errorf("error generating full script for language %q: %w", lang.Name, err)
+		return
+	}
+
+	liteScriptPath, liteStatsLine, err := generateListForCountry(outputDir, filterFiles, lang.Name, lang.Iso6391, nil)
+	if err != nil {
+		err = fmt.Errorf("error generating lite script for language %q: %w", lang.Name, err)
+		return
+	}
+
+	// Get size of both
+	fi, err := os.Stat(fullScriptPath)
+	if err != nil {
+		err = fmt.Errorf("error getting size of full script: %w", err)
+		return
+	}
+	li, err := os.Stat(liteScriptPath)
+	if err != nil {
+		err = fmt.Errorf("error getting size of lite script: %w", err)
+		return
+	}
+
+	return ScriptInfo{
+			ScriptBaseName: path.Base(fullScriptPath),
+			LanguageName:   lang.Name,
+			LanguageCode:   lang.Iso6391,
+			Stats:          fullStatsLine,
+			Size:           fi.Size(),
+		}, ScriptInfo{
+			ScriptBaseName: path.Base(liteScriptPath),
+			LanguageName:   lang.Name,
+			LanguageCode:   lang.Iso6391,
+			Stats:          liteStatsLine,
+			Size:           li.Size(),
+			IsLite:         true,
+		},
+		nil
+}
+
+type ScriptInfo struct {
+	ScriptBaseName string `json:"script_name"`
+	LanguageName   string `json:"language_name"`
+	LanguageCode   string `json:"language_code"`
+	Stats          string `json:"stats"`
+	IsLite         bool   `json:"is_lite"`
+	Size           int64  `json:"size"`
+}
+
+const outputDir = "cosmetic-outputs"
+
+func main() {
+	var (
+		baseURLList = flag.String("baseList", "base-filters.txt", "Path to base URL list")
+	)
+	flag.Parse()
+
+	baseFilterURLs, err := util.ReadListFile(*baseURLList)
+	if err != nil {
+		log.Fatalf("cannot load list of filter URLs: %s\n", err.Error())
+	}
+
+	urlTempDir, err := os.MkdirTemp("", "cosmetic-urls-*")
+	if err != nil {
+		log.Fatalf("creating temp dir for cosmetic filters: %s\n", err.Error())
+	}
+	defer os.RemoveAll(urlTempDir)
+
+	td, err := topdomains.FromFile("top1m/top-1m.csv", 1_000_000)
+	if err != nil {
+		log.Fatalf("error loading top domains: %s\n", err.Error())
+	}
+
+	// Delete and recreate output directory
+	err = os.RemoveAll(outputDir)
+	if err != nil && !os.IsNotExist(err) {
+		log.Fatalf("error deleting output directory: %s\n", err.Error())
+	}
+	err = os.MkdirAll(outputDir, 0755)
+	if err != nil {
+		log.Fatalf("error creating output directory: %s\n", err.Error())
+	}
+
+	baseFilterFiles, err := util.DownloadURLs(baseFilterURLs, urlTempDir)
+	if err != nil {
+		log.Fatalf("error downloading filter lists: %s\n", err.Error())
+	}
+	log.Printf("Downloaded %d base filter files\n", len(baseFilterFiles))
+
+	languages, err := filterlists.FetchLanguages()
+	if err != nil {
+		log.Fatalf("error fetching languages: %s\n", err.Error())
+	}
+
+	filterLists, err := filterlists.FetchFilterLists()
+	if err != nil {
+		log.Fatalf("error fetching filter lists: %s\n", err.Error())
+	}
+
+	var (
+		scriptInfos     []ScriptInfo
+		scriptInfosLock sync.Mutex
+	)
+
+	var eg errgroup.Group
+	for _, lang := range languages {
+		lcpy := lang
+		eg.Go(func() error {
+			fullScriptInfo, liteScriptInfo, err := processLanguage(lcpy, filterLists, baseFilterFiles, urlTempDir, outputDir, td)
+			if err != nil {
+				return err
+			}
+			scriptInfosLock.Lock()
+			scriptInfos = append(scriptInfos, fullScriptInfo)
+			scriptInfos = append(scriptInfos, liteScriptInfo)
+			scriptInfosLock.Unlock()
+			return nil
+		})
+	}
+
+	if err := eg.Wait(); err != nil {
+		log.Fatalf("error processing languages: %s\n", err.Error())
+	}
+
+	sort.Slice(scriptInfos, func(i, j int) bool {
+		return scriptInfos[i].ScriptBaseName < scriptInfos[j].ScriptBaseName
+	})
+
+	scriptInfosJSON, err := json.Marshal(scriptInfos)
+	if err != nil {
+		log.Fatalf("error generating script infos: %s\n", err.Error())
+	}
+
+	err = os.WriteFile(path.Join(outputDir, "cosmetic_info.json"), scriptInfosJSON, 0644)
+	if err != nil {
+		log.Fatalf("error writing script infos: %s\n", err.Error())
 	}
 }

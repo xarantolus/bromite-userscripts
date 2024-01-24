@@ -1,19 +1,19 @@
 // ==UserScript==
-// @name         Cosmetic Ad Block for Bromite{{if .isLite}} (Lite){{end}}
+// @name         Cosmetic Ad Block {{.countryName}}{{if .isLite}} (lite){{else}}{{end}}
 // @namespace    xarantolus
 // @version      {{.version}}
-// @description  Blocks annoying elements in {{if .isLite}}top {{.topDomainCount}} domains{{else}}pages{{end}}, sourced from many different filter lists
+// @description  Blocks annoying elements on{{if .isLite}} top 1M{{end}} websites
 // @author       xarantolus
 // @match        *://*/*
 // @grant        none
 // @run-at       document-start
-// @homepage     https://userscripts.010.one
-// @url_source   https://github.com/xarantolus/bromite-userscripts/releases/latest/download/cosmetic{{if .isLite}}-lite{{end}}.user.js
+// @homepage     https://userscripts.010.one/#cosmetic-{{.countryCode}}
+// @url_source   https://github.com/xarantolus/bromite-userscripts/releases/latest/download/{{.filename}}
 // ==/UserScript==
 /// @stats {{.statistics}}
 {
     let log = function (...data) {
-        console.log("[Cosmetic filters by xarantolus (v{{.version}} {{if .isLite}}lite{{else}}full{{end}})]:", ...data);
+        console.log("[Cosmetic filters by xarantolus (v{{.version}}, {{.countryName}}, {{if .isLite}}lite{{else}}full{{end}})]:", ...data);
     }
 
 

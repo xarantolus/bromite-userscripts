@@ -43,8 +43,12 @@ func DownloadURLs(inputURLs []string, tempDir string) (outputPaths []string, err
 
 	for _, dlURL := range inputURLs {
 		fn := filepath.Join(tempDir, generateFilename(dlURL))
+		if _, err := os.Stat(fn); err == nil {
+			outputPaths = append(outputPaths, fn)
+			continue
+		}
 
-		err = dlFile(dlURL, fn)
+		err := dlFile(dlURL, fn)
 		if err != nil {
 			errCount++
 

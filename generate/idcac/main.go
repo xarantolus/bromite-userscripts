@@ -251,7 +251,7 @@ func main() {
 		"rules":           rules,
 		"javascriptFixes": mapFunctions(javascriptFixes),
 		"cookieBlockCSS":  toJSString(cookieBlockCSS),
-		"statistics":      fmt.Sprintf("generated from version `%s` available [here](%s)", extensionVersion, extensionURL),
+		"statistics":      fmt.Sprintf("generated from version `%s` available at %s", extensionVersion, extensionURL),
 	})
 	if err != nil {
 		log.Fatalf("Error generating script text: %s\n", err.Error())

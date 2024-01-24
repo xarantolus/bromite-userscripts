@@ -1,4 +1,4 @@
 # Auto-generated scripts
-cosmetic.user.js
-cosmetic-lite.user.js
+cosmetic*.user.js
 idcac.user.js
+*.json

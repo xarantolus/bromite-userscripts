@@ -21,9 +21,7 @@ https://raw.githubusercontent.com/yourduskquibbles/webannoyances/master/filters/
 https://raw.githubusercontent.com/yourduskquibbles/webannoyances/master/filters/modal_filters.txt
 https://raw.githubusercontent.com/yourduskquibbles/webannoyances/master/filters/newsletter_filters.txt
 https://raw.githubusercontent.com/yourduskquibbles/webannoyances/master/filters/social_filters.txt
-https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2020.txt
-https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2022.txt
-https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2021.txt
+https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters.txt
 https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/annoyances.txt
 
 https://secure.fanboy.co.nz/fanboy-annoyance.txt
@@ -38,12 +36,7 @@ https://raw.githubusercontent.com/bogachenko/fuckfuckadblock/master/fuckfuckadbl
 https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/privacy.txt
 https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/unbreak.txt
 
-# CNAME record trackers
-https://raw.githubusercontent.com/AdguardTeam/cname-trackers/master/combined_disguised_trackers.txt
-
 # Other Adguard lists
-https://filters.adtidy.org/extension/ublock/filters/2.txt
-https://filters.adtidy.org/extension/ublock/filters/3.txt
 https://filters.adtidy.org/extension/ublock/filters/11.txt
 https://filters.adtidy.org/extension/ublock/filters/19.txt
 https://filters.adtidy.org/extension/ublock/filters/20.txt
@@ -62,14 +55,7 @@ https://raw.githubusercontent.com/robonxt/CleanYourTwitter/master/CleanYourTwitt
 # My own block list
 https://raw.githubusercontent.com/xarantolus/nervig/main/annoyances.txt
 
-# ----------------------------------
-# Now some region-specific lists
-# ----------------------------------
-https://easylist-downloads.adblockplus.org/easylistgermany.txt
-
-# Adguard lists from https://github.com/AdguardTeam/AdguardFilters
-https://filters.adtidy.org/extension/ublock/filters/6.txt
-
+# Generic lists
 https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/Cookies/sections/cookies_general.txt
 https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/AnnoyancesFilter/Cookies/sections/cookies_specific.txt
 https://github.com/AdguardTeam/AdguardFilters/raw/master/AnnoyancesFilter/Widgets/sections/widgets.txt
