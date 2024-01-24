@@ -53,15 +53,18 @@
 		}
 	</style>
 	<script>
-		var countriesByPopulation = ["in", "cn", "us", "id", "pk", "ng", "br", "bd", "ru", "et", "mx", "jp", "ph", "eg", "cd", "vn", "ir", "tr", "de", "th", "tz", "gb", "fr", "za", "it", "ke", "mm", "co", "kr", "ug", "sd", "es", "iq", "dz", "ar", "af", "pl", "ca", "ma", "ua", "ao", "sa", "uz", "ye", "mz", "gh", "pe", "my", "np", "mg", "ci", "ve", "cm", "ne", "au", "kp", "sy", "ml", "tw", "bf", "lk", "mw", "zm", "kz", "cl", "ro", "td", "so", "ec", "gt", "sn", "nl", "kh", "zw", "gn", "rw", "bj", "bi", "bo", "tn", "ht", "be", "do", "jo", "ss", "cu", "hn", "se", "pg", "cz", "az", "tj", "gr", "pt", "hu", "ae", "by", "il", "tg", "sl", "at", "ch", "la", "hk", "ni", "rs", "ly", "py", "kg", "bg", "tm", "sv", "cg", "sg", "dk", "cf", "sk", "fi", "lr", "no", "ps", "nz", "cr", "lb", "ie", "mr", "om", "pa", "kw", "hr", "er", "ge", "mn", "uy", "md", "pr", "ba", "gm", "al", "jm", "am", "qa", "bw", "lt", "na", "ga", "ls", "gw", "si", "mk", "lv", "gq", "tt", "bh", "tl", "ee", "mu", "cy", "sz", "dj", "re", "fj", "km", "gy", "bt", "sb", "mo", "lu", "sr", "me", "cv", "eh", "mt", "mv", "bn", "bz", "bs", "gp", "is", "mq", "yt", "vu", "gf", "pf", "nc", "bb", "st", "ws", "cw", "lc", "gu", "ki", "gd", "fm", "je", "to", "sc", "aw", "vc", "vi", "ag", "im", "ad", "dm", "ky", "bm", "gg", "gl", "fo", "mp", "kn", "tc", "sx", "as", "mh", "li", "mc", "sm", "gi", "mf", "vg", "pw", "ck", "ai", "nr", "tv", "wf", "bl", "pm", "ms", "fk", "nu", "tk", "va"];
+		var sortOrder = [
+			"zh", "en", "hi", "es", "ar", "bn", "pt", "ru", "ja", "pa", "de", "jv", "id", "te", "vi", "ko", "fr", "mr", "ta", "ur", "tr", "it", "th", "gu", "fa", "pl", "uk", "ro", "nl", "hu", "sv", "fi", "az", "ca", "el", "he", "no", "kk", "cs", "uz", "km", "hr", "sd", "bn", "sk", "da", "lt", "et", "sl", "sr", "lv", "mk", "bg", "bs", "hy", "lo", "si", "tg", "ur", "kk", "ky", "pa", "my", "mn", "km", "ka", "ne", "zh", "th", "kn", "ta", "gu", "or", "as", "ml", "mr", "sa", "si", "sd", "lo", "my", "dz", "bo", "hy", "ka", "ne", "br", "ceb", "ht", "mg", "mt", "oc", "st", "sn", "sw", "tk", "yo", "zu", "az", "gl", "eu", "co", "fy", "ga", "is", "lb", "mk", "mg", "ml", "mn", "mt", "mr", "ne", "oc", "ps", "qu", "rw", "sm", "sn", "so", "sq", "su", "tg", "tk", "uz", "wa", "xh", "yo", "zu"
+		];
+
 
 		function sortLargestCountriesFirst(countries, getCountryCode) {
 			return countries.sort((a, b) => {
 				var aCode = getCountryCode(a);
 				var bCode = getCountryCode(b);
 
-				var aIndex = countriesByPopulation.indexOf(aCode);
-				var bIndex = countriesByPopulation.indexOf(bCode);
+				var aIndex = sortOrder.indexOf(aCode);
+				var bIndex = sortOrder.indexOf(bCode);
 
 				if (aIndex === -1) {
 					return 1;
@@ -212,7 +215,7 @@
 
 			if (languageScripts.length > 0) {
 				var p = document.createElement("p");
-				p.innerText = "Scripts for your browser language" + (languageScripts.length > 1 ? "s" : "") + ":";
+				p.innerText = "Scripts for your browser region" + (languageScripts.length > 1 ? "s" : "") + ":";
 				resultElem.appendChild(p);
 
 				for (var i = 0; i < languageScripts.length; i++) {
@@ -223,7 +226,7 @@
 			// Now also list all other scripts
 			var otherScripts = scripts.filter(script => script.language_code !== "base" && !languages.includes(script.language_code));
 
-			console.log("Scripts for other languages: ", otherScripts);
+			console.log("Scripts for other regions: ", otherScripts);
 
 			var mapping = {};
 			for (var i = 0; i < otherScripts.length; i++) {
@@ -251,7 +254,7 @@
 
 				if (!rendered) {
 					var p = document.createElement("p");
-					p.innerText = "Scripts for other languages:";
+					p.innerText = "Scripts for other regions:";
 					resultElem.appendChild(p);
 					rendered = true;
 				}
