@@ -174,6 +174,7 @@
 		function createDownloadAlternative(s) {
 			var wrap = document.createElement("p");
 			wrap.className = "dl";
+			wrap.id = "cosmetic-" + s[0].language_code;
 
 
 			// Swap so full is first
@@ -256,6 +257,14 @@
 				}
 
 				resultElem.appendChild(createDownloadAlternative(scripts));
+			}
+
+			// If the URL has a hash, jump to that element if it exists
+			if (window.location.hash) {
+				var elem = document.getElementById(window.location.hash.substr(1));
+				if (elem) {
+					elem.scrollIntoView();
+				}
 			}
 		}
 	</script>
