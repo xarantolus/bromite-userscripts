@@ -167,7 +167,7 @@ func generateListForCountry(outputDir string, listURLs []string, countryName, co
 	return
 }
 
-func processLanguage(lang filterlists.Language, filterLists filterlists.FilterLists, baseFilterFiles []string, urlTempDir string, outputDir string, topDomainsFilter topdomains.TopDomainStorage) (fullScriptInfo, liteScriptInfo ScriptInfo, err error) {
+func processLanguage(lang filterlists.Language, filterLists filterlists.FilterLists, extraLists []string, urlTempDir string, outputDir string, topDomainsFilter topdomains.TopDomainStorage) (fullScriptInfo, liteScriptInfo ScriptInfo, err error) {
 	log.Printf("Processing language %q\n", lang.Name)
 
 	filterListsForLang := filterLists.ForLanguages([]filterlists.Language{lang})
@@ -176,6 +176,8 @@ func processLanguage(lang filterlists.Language, filterLists filterlists.FilterLi
 	for _, fl := range filterListsForLang {
 		filterListURLs = append(filterListURLs, fl.PrimaryViewURL)
 	}
+
+	filterListURLs = append(filterListURLs, extraLists...)
 
 	codeAdditionsPath := path.Join("additions", fmt.Sprintf("%s.txt", lang.Iso6391))
 	countrySpecificAdditions, err := util.ReadListFile(codeAdditionsPath)
@@ -187,19 +189,18 @@ func processLanguage(lang filterlists.Language, filterLists filterlists.FilterLi
 
 	filterFiles, err := util.DownloadURLs(filterListURLs, urlTempDir)
 	if err != nil {
-		// Ignore - we still have the base filters
+		// Ignore - prefer generating an empty script over having none
 		log.Printf("[Warning] Error downloading filter lists for language %q: %s\n", lang.Name, err.Error())
 	}
 
-	filterFiles = append(filterFiles, baseFilterFiles...)
-
-	fullScriptPath, fullStatsLine, err := generateListForCountry(outputDir, filterFiles, lang.Name, lang.Iso6391, &topDomainsFilter)
+	fullScriptPath, fullStatsLine, err := generateListForCountry(outputDir, filterFiles, lang.Name, lang.Iso6391, nil)
 	if err != nil {
 		err = fmt.Errorf("error generating full script for language %q: %w", lang.Name, err)
 		return
 	}
 
-	liteScriptPath, liteStatsLine, err := generateListForCountry(outputDir, filterFiles, lang.Name, lang.Iso6391, nil)
+	// Now with filtering of top domains
+	liteScriptPath, liteStatsLine, err := generateListForCountry(outputDir, filterFiles, lang.Name, lang.Iso6391, &topDomainsFilter)
 	if err != nil {
 		err = fmt.Errorf("error generating lite script for language %q: %w", lang.Name, err)
 		return
@@ -277,12 +278,6 @@ func main() {
 		log.Fatalf("error creating output directory: %s\n", err.Error())
 	}
 
-	baseFilterFiles, err := util.DownloadURLs(baseFilterURLs, urlTempDir)
-	if err != nil {
-		log.Fatalf("error downloading filter lists: %s\n", err.Error())
-	}
-	log.Printf("Downloaded %d base filter files\n", len(baseFilterFiles))
-
 	languages, err := filterlists.FetchLanguages()
 	if err != nil {
 		log.Fatalf("error fetching languages: %s\n", err.Error())
@@ -298,11 +293,30 @@ func main() {
 		scriptInfosLock sync.Mutex
 	)
 
+	var baseLanguage = filterlists.Language{
+		ID:      -1337,
+		Iso6391: "base",
+		Name:    "Base",
+	}
+
 	var eg errgroup.Group
+	eg.Go(func() error {
+		fullScriptInfo, liteScriptInfo, err := processLanguage(baseLanguage, filterLists, baseFilterURLs, urlTempDir, outputDir, td)
+		if err != nil {
+			return err
+		}
+
+		scriptInfosLock.Lock()
+		scriptInfos = append(scriptInfos, fullScriptInfo)
+		scriptInfos = append(scriptInfos, liteScriptInfo)
+		scriptInfosLock.Unlock()
+		return nil
+	})
+
 	for _, lang := range languages {
 		lcpy := lang
 		eg.Go(func() error {
-			fullScriptInfo, liteScriptInfo, err := processLanguage(lcpy, filterLists, baseFilterFiles, urlTempDir, outputDir, td)
+			fullScriptInfo, liteScriptInfo, err := processLanguage(lcpy, filterLists, nil, urlTempDir, outputDir, td)
 			if err != nil {
 				return err
 			}
