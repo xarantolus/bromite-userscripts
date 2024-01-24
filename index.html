@@ -79,7 +79,7 @@
 
 		function addLanguage(code) {
 			try {
-				var langs = JSON.parse(localStorage.getItem("languages") ||  "[]");
+				var langs = JSON.parse(localStorage.getItem("languages") || "[]");
 				if (!langs.includes(code)) {
 					langs.push(code);
 					langs = sortLargestCountriesFirst(langs, c => c);
@@ -302,19 +302,18 @@
 		<li>This script removes annoying elements similar to typical AdBlockers, but it is not as powerful as a real AdBlocker. </li>
 		<li>The Bromite AdBlock engine does not support cosmetic filtering, so this script implements that capability (to a <em>very</em> basic extent)</li>
 		<li>This script doesn't know about exception rules, so it will block too many elements on some pages</li>
-		<li>Rules are regenerated once a week from the filter lists defined in <a href="generate/cosmetic/filter-lists.txt">this file</a></li>
-		<li>Do not use the normal script on less powerful devices
-			<ul>
-				<li>In my performance tests, sites take an average of 300-400ms longer to load ("<a href="https://web.dev/fcp/">first contentful paint</a>" metric) when the script is active (tests were done on a Mi Mix 2, a phone released 2017)</li>
-				<li>However, it takes way more than 400ms to manually click "Decline" on an annoying popup, so I think it is a good tradeoff</li>
-			</ul>
-		</li>
 	</ul>
+
 	<p>
-		To use the script, it is recommended to use both the base script and any additional language extensions.
-		They come in full and lite variants, with the lite version usually being half the size. The lite version is recommended for older/less powerful devices.
-		Each script will also work independently, so you don't need to download all of them.
+		<strong>Acknowledgement</strong>: The filter lists for the cosmetic filter script are sourced from <a href="https://github.com/collinbarrett/FilterLists">collinbarrett's FilterLists</a> project (see <a href="https://filterlists.com">filterlists.com</a>). Thanks to everyone that contributes! :)
 	</p>
+
+	<p>
+		To use the scripts, it is recommended to use both the base script and any additional language extensions.
+		They come in full and lite variants, with the lite version usually being half the size. The lite version is recommended for older/less powerful devices.
+		Each script will also work independently, you don't need to download all of them.
+	</p>
+
 
 	<div id="language-list">
 		<p>Choose one of the base scripts:</p>
