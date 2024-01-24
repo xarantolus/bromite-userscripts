@@ -1,5 +1,5 @@
 # [Bromite User Scripts](https://userscripts.010.one)
-This repository provides [User Scripts](https://github.com/bromite/bromite/wiki/UserScripts) for [Bromite](https://www.bromite.org/) and [Cromite](https://www.cromite.org/), which are browsers for Android. The scripts might also work on other mobile or desktop browsers.
+This repository provides [User Scripts](https://github.com/bromite/bromite/wiki/UserScripts) for [Bromite](https://www.bromite.org/) and [Cromite](https://www.cromite.org/), which are browsers for Android. These scripts might also work on other mobile or desktop browsers.
 
 Bromite has a built-in ad blocker (also see my [Bromite ad blocking project](https://github.com/xarantolus/filtrite)), but some sites are very good at bypassing it. We can improve blocking on these sites using scripts. Cromite already has a good built-in Ad Blocker.
 
