@@ -48,7 +48,9 @@ jobs:
     - name: Release scripts
       uses: softprops/action-gh-release@v1
       with:
-        files: block/*.user.js
+        files: |
+          block/*.user.js
+          block/*.json*
         name: Automatic script generation
         tag_name: ${{ env.TAG_NAME }}
         body: "This release contains all scripts provided by this repository.\n\nPlease see [the main project page](${{ github.server_url }}/${{ github.repository }}) for a description of the scripts."
