@@ -141,7 +141,7 @@ func generateListForCountry(outputDir string, listURLs []string, countryName, co
 		return
 	}
 
-	statsLine = fmt.Sprintf("blockers for %d domains, injected CSS rules for %d domains", len(compiledSelectorRules), len(compiledInjectionRules))
+	statsLine = fmt.Sprintf("%s: blockers for %d domains, injected CSS rules for %d domains", countryName, len(compiledSelectorRules), len(compiledInjectionRules))
 	err = scriptTemplate.Execute(outputFile, map[string]interface{}{
 		"version":             time.Now().Format("2006.01.02"),
 		"rules":               toJSObject(compiledSelectorRules),
