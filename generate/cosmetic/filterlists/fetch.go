@@ -2,6 +2,8 @@ package filterlists
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 	"time"
 )
@@ -68,7 +70,9 @@ func fetchJSON(url string, target interface{}) (err error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 400 {
-		return
+		body, _ := io.ReadAll(resp.Body)
+
+		return fmt.Errorf("unexpected status code %d: %s", resp.StatusCode, string(body))
 	}
 
 	err = json.NewDecoder(resp.Body).Decode(target)
