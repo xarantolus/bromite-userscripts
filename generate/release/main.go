@@ -21,7 +21,7 @@ func env(name string, defaultVal string) string {
 	return v
 }
 
-const outputTemplate = "This release contains all scripts provided by this repository.\n\nPlease see [the main project page](https://github.com/{{.repo}}) for a description of the scripts.{{if .stats}}\n\n**Stats**:{{range .stats}}\n* `{{.ScriptName}}`: {{.StatsLine}}{{end}}{{end}}"
+const outputTemplate = "### Prefer [the website](https://userscripts.010.one/) for downloading scripts.\n\nThis release contains all scripts provided by this repository.{{if .stats}}\n\n**Stats**:{{range .stats}}\n* [`{{.ScriptName}}`](https://github.com/xarantolus/bromite-userscripts/releases/latest/download/{{.ScriptName}}): {{.StatsLine}}{{end}}{{end}}"
 
 var statMarker = []byte("/// @stats")
 
