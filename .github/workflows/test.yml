@@ -14,7 +14,13 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
-        go-version: ^1.17
+        go-version: ^1.21
+
+    - name: Start FilterLists server
+      run: |
+        git clone https://github.com/collinbarrett/FilterLists --depth 1 FilterLists
+        cd FilterLists
+        docker-compose -f docker-compose/docker-compose.yml -f docker-compose/docker-compose.override.yml up -d
 
     - name: "Run generator tests"
       shell: bash

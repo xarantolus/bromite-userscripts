@@ -92,12 +92,12 @@ func fetchJSON(url string, target interface{}) (err error) {
 
 // FetchLanguages fetches the list of languages available on FilterLists.com
 func FetchLanguages() (languages []Language, err error) {
-	err = fetchJSON("https://filterlists.com/api/directory/languages", &languages)
+	err = fetchJSON("http://localhost:8080/api/directory/languages", &languages)
 	return
 }
 
 // FetchFilterLists fetches the list of filter lists available on FilterLists.com
 func FetchFilterLists() (filterLists FilterLists, err error) {
-	err = fetchJSON("https://filterlists.com/api/directory/lists", &filterLists.Lists)
+	err = fetchJSON("http://localhost:8080/api/directory/lists", &filterLists.Lists)
 	return
 }
