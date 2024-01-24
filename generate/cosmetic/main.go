@@ -282,7 +282,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("error fetching languages: %s\n", err.Error())
 	}
-	log.Println("Fetched %d languages", len(languages))
+	log.Printf("Fetched %d languages", len(languages))
 
 	filterLists, err := filterlists.FetchFilterLists()
 	if err != nil {
