@@ -30,7 +30,15 @@ func DownloadURLs(inputURLs []string, tempDir string) (outputPaths []string, err
 		}
 		defer f.Close()
 
-		resp, err := httpClient.Get(url)
+		req, err := http.NewRequest("GET", url, nil)
+		if err != nil {
+			return
+		}
+
+		req.Header.Set("User-Agent", "github.com/xarantolus/bromite-userscripts")
+		req.Header.Set("Accept-Language", "en-US,en;q=0.5")
+
+		resp, err := httpClient.Do(req)
 		if err != nil {
 			return
 		}

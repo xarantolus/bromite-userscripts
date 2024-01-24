@@ -52,6 +52,15 @@ var apiClient = http.Client{
 }
 
 func fetchJSON(url string, target interface{}) (err error) {
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return
+	}
+
+	req.Header.Set("User-Agent", "github.com/xarantolus/bromite-userscripts")
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Accept-Language", "en-US,en;q=0.5")
+
 	resp, err := apiClient.Get(url)
 	if err != nil {
 		return
