@@ -1,12 +1,12 @@
 # [Bromite User Scripts](https://userscripts.010.one)
-This is a repository that hosts [User Scripts](https://github.com/bromite/bromite/wiki/UserScripts) for [Bromite](https://www.bromite.org/) and [Cromite](https://www.cromite.org/), which are browsers for Android. They might also work on other mobile or desktop browsers.
-
-**Acknowledgement**: The filter lists for the cosmetic filter script are sourced from [collinbarrett's FilterLists](https://github.com/collinbarrett/FilterLists) project (see [filterlists.com](https://filterlists.com)). Thanks to everyone that contributes! :)
+This repository provides [User Scripts](https://github.com/bromite/bromite/wiki/UserScripts) for [Bromite](https://www.bromite.org/) and [Cromite](https://www.cromite.org/), which are browsers for Android. The scripts might also work on other mobile or desktop browsers.
 
 Bromite has a built-in ad blocker (also see my [Bromite ad blocking project](https://github.com/xarantolus/filtrite)), but some sites are very good at bypassing it. We can improve blocking on these sites using scripts. Cromite already has a good built-in Ad Blocker.
 
 ### Downloads
 You can get an overview and download links on [**the website**](https://userscripts.010.one).
+
+**Acknowledgement**: The filter lists for the cosmetic filter script are sourced from [collinbarrett's FilterLists](https://github.com/collinbarrett/FilterLists) project (see [filterlists.com](https://filterlists.com)). Thanks to everyone that contributes! :)
 
 
 **Deprecated**
