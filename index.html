@@ -1,7 +1,301 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
-<title>Redirecting to https://github.com/xarantolus/bromite-userscripts</title>
-<meta http-equiv="refresh" content="0; URL=https://github.com/xarantolus/bromite-userscripts">
-<link rel="canonical" href="https://github.com/xarantolus/bromite-userscripts">
+<html lang="en">
 
-If you are not being redirected, you can click <a href="https://github.com/xarantolus/bromite-userscripts">this link</a> to get to the destination.
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Bromite Userscripts</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+
+			margin: 0 auto;
+			max-width: 800px;
+
+			padding: .5em;
+		}
+
+		@media (prefers-color-scheme: dark) {
+			body {
+				background-color: #222;
+				color: #eee;
+			}
+
+			a {
+				color: #aaf;
+			}
+
+			a.script-link {
+				color: #3f3;
+			}
+		}
+
+		a.script-link {
+			color: #1a0;
+		}
+
+		p.dl {
+			text-align: center;
+		}
+
+		.download-button {
+			display: inline-block;
+			padding: 0.5em 1em;
+			margin: .25em .25em;
+			border-radius: 0.5em;
+			background-color: #1a0;
+			color: #fff;
+			text-decoration: none;
+		}
+
+		.lite {
+			background-color: #0aa;
+		}
+	</style>
+	<script>
+		function addLanguage(code) {
+			try {
+				var langs = JSON.parse(localStorage.getItem("languages") ||  "[]");
+				if (!langs.includes(code)) {
+					langs.push(code);
+					langs.sort();
+					localStorage.setItem("languages", JSON.stringify(langs));
+				}
+			}
+			catch (error) {
+				console.error("Error adding language: ", error);
+			}
+		}
+
+		function getUserLanguages() {
+			var languages = [];
+
+			try {
+				if (navigator.language) {
+					languages = [navigator.language];
+				}
+				if (navigator.userLanguage) {
+					languages = [navigator.userLanguage];
+				}
+				if (navigator.languages) {
+					languages.push(...navigator.languages);
+				}
+
+				var langs = localStorage.getItem("languages") || "[]";
+				if (langs) {
+					languages.push(...JSON.parse(langs));
+				}
+			} catch (error) {
+				console.error("Error getting user languages: ", error);
+			}
+
+			// Map to two-letter format and deduplicate
+			var deduplicatedLanguages = Array.from(new Set(languages.map(lang => lang.substr(0, 2))));
+
+			return deduplicatedLanguages.sort();
+		}
+
+		var downloadPrefix = "https://github.com/xarantolus/bromite-userscripts/releases/latest/download/";
+		var scriptsLoaded = false;
+		var languages = getUserLanguages();
+
+		var timeout = setTimeout(function () {
+			if (!scriptsLoaded) {
+				document.getElementById("language-list").innerHTML = "<p>Failed to load script data</p>";
+			}
+		}, 15000);
+
+		function jsonpCosmeticInfo(script_data) {
+			// script_data is an array of objects like this:
+			// {"script_name":"cosmetic-af-lite.user.js","language_name":"Afrikaans","language_code":"af","stats":"blockers for 193 domains, injected CSS rules for 4 domains","is_lite":true,"size":15698}
+			scriptsLoaded = true;
+			console.log("Loaded " + script_data.length + " scripts");
+			clearTimeout(timeout);
+			scriptsAvailable(script_data);
+		}
+
+		function formatFileSize(bytes) {
+			if (bytes < 1024) {
+				return bytes + " B";
+			} else if (bytes < 1024 * 1024) {
+				return (bytes / 1024).toFixed(2) + " KB";
+			} else {
+				return (bytes / 1024 / 1024).toFixed(2) + " MB";
+			}
+		}
+
+		function createDownloadButton(script) {
+			var downloadLink = downloadPrefix + script.script_name;
+
+			var button = document.createElement("a");
+			button.href = downloadLink;
+			button.download = script.script_name;
+			button.className = "download-button" + (script.is_lite ? " lite" : "");
+			button.innerText = "Download " + (script.is_lite ? "lite" : "full") + " " + script.language_name + " script"
+				+ " (" + formatFileSize(script.size) + ")";
+
+			button.addEventListener("click", function () {
+				addLanguage(script.language_code);
+			});
+
+			return button;
+		}
+
+		function findLanguageScripts(scripts, langCode) {
+			var s = scripts.filter(script => script.language_code === langCode);
+			if (s.length != 2) {
+				return null;
+			}
+
+			return s;
+		}
+
+		function createDownloadAlternative(s) {
+			var wrap = document.createElement("p");
+			wrap.className = "dl";
+
+
+			// Swap so full is first
+			if (s[0].is_lite) {
+				var tmp = s[0];
+				s[0] = s[1];
+				s[1] = tmp;
+			}
+
+			wrap.appendChild(createDownloadButton(s[0]));
+			wrap.appendChild(document.createTextNode(" OR "));
+			wrap.appendChild(createDownloadButton(s[1]));
+
+			return wrap;
+		}
+
+
+		function scriptsAvailable(scripts) {
+			var resultElem = document.getElementById("language-list");
+			resultElem.innerHTML = "";
+
+
+			let baseScripts = findLanguageScripts(scripts, "base");
+			if (baseScripts !== null) {
+				var p = document.createElement("p");
+				p.innerText = "Choose one of the base scripts:";
+				resultElem.appendChild(p);
+
+				resultElem.appendChild(createDownloadAlternative(baseScripts));
+			}
+
+			// See which languages we have scripts for
+			var languageScripts = languages.map(lang => findLanguageScripts(scripts, lang)).filter(s => s !== null);
+			console.log("Scripts for languages: ", languageScripts);
+
+			if (languageScripts.length > 0) {
+				var p = document.createElement("p");
+				p.innerText = "Scripts for your browser language" + (languageScripts.length > 1 ? "s" : "") + ":";
+				resultElem.appendChild(p);
+
+				for (var i = 0; i < languageScripts.length; i++) {
+					resultElem.appendChild(createDownloadAlternative(languageScripts[i]));
+				}
+			}
+
+			// Now also list all other scripts
+			var otherScripts = scripts.filter(script => script.language_code !== "base" && !languages.includes(script.language_code));
+
+			console.log("Scripts for other languages: ", otherScripts);
+
+			var mapping = {};
+			for (var i = 0; i < otherScripts.length; i++) {
+				var script = otherScripts[i];
+
+				if (!mapping[script.language_code]) {
+					mapping[script.language_code] = [];
+				}
+
+				mapping[script.language_code].push(script);
+			}
+
+			console.log(mapping);
+
+			var keys = Object.keys(mapping);
+			keys.sort();
+
+			var rendered = false;
+			for (var i = 0; i < keys.length; i++) {
+				var langCode = keys[i];
+				var scripts = mapping[langCode];
+				if (scripts.length != 2) {
+					console.error("Invalid script count for language " + langCode + ": ", scripts);
+					continue;
+				}
+
+				if (!rendered) {
+					var p = document.createElement("p");
+					p.innerText = "Scripts for other languages:";
+					resultElem.appendChild(p);
+					rendered = true;
+				}
+
+				resultElem.appendChild(createDownloadAlternative(scripts));
+			}
+		}
+	</script>
+</head>
+
+<body>
+	<a href="https://github.com/xarantolus/bromite-userscripts" target="_blank">
+		<h1>Bromite Userscripts</h1>
+	</a>
+	<p>This project provides user scripts for Bromite and Cromite. Check it out on .</p>
+	<h2>List of Scripts</h2>
+
+	<a download="" target="_blank" href="https://github.com/xarantolus/bromite-userscripts/releases/latest/download/idcac.user.js">
+		<h3>I don't care about cookies</h3>
+	</a>
+	<ul>
+		<li>Block all kinds of cookie prompts, based on the <a href="https://addons.mozilla.org/de/firefox/addon/i-dont-care-about-cookies/">"I don't care about cookies" browser extension</a> (GPL).</li>
+		<li>This script is automatically regenerated from time to time, keeping up to date with the latest rules from the browser extension</li>
+		<li><strong>Security consideration</strong>: if the author of the browser extension inserts malicious code, this script would likely also contain that code</li>
+		<li>In my tests, this script added around 30-100ms to the load time of websites, so its impact is really small despite the rather large size of around 1MB</li>
+	</ul>
+
+	<p class="dl">
+		<a class="download-button" download="" target="_blank" href="https://github.com/xarantolus/bromite-userscripts/releases/latest/download/idcac.user.js">Download IDCAC Script</a>
+	</p>
+
+	<h3>Cosmetic AdBlock</h3>
+	<ul>
+		<li>This script removes annoying elements similar to typical AdBlockers, but it is not as powerful as a real AdBlocker. </li>
+		<li>The Bromite AdBlock engine does not support cosmetic filtering, so this script implements that capability (to a <em>very</em> basic extent)</li>
+		<li>This script doesn't know about exception rules, so it will block too many elements on some pages</li>
+		<li>Rules are regenerated once a week from the filter lists defined in <a href="generate/cosmetic/filter-lists.txt">this file</a></li>
+		<li>Do not use the normal script on less powerful devices
+			<ul>
+				<li>In my performance tests, sites take an average of 300-400ms longer to load ("<a href="https://web.dev/fcp/">first contentful paint</a>" metric) when the script is active (tests were done on a Mi Mix 2, a phone released 2017)</li>
+				<li>However, it takes way more than 400ms to manually click "Decline" on an annoying popup, so I think it is a good tradeoff</li>
+			</ul>
+		</li>
+	</ul>
+	<p>
+		To use the script, it is recommended to use both the base script and any additional language extensions.
+		They come in full and lite variants, with the lite version usually being half the size. The lite version is recommended for older/less powerful devices.
+		Each script will also work independently, so you don't need to download all of them.
+	</p>
+
+	<div id="language-list">
+		<p>Choose one of the base scripts:</p>
+		<p class="dl">
+			<a class="download-button" download="" target="_blank" href="https://github.com/xarantolus/bromite-userscripts/releases/latest/download/cosmetic-base.user.js">Download full Base script</a> OR
+			<a class="download-button lite" download="" target="_blank" href="https://github.com/xarantolus/bromite-userscripts/releases/latest/download/cosmetic-base-lite.user.js">Download lite Base script</a>
+		</p>
+
+		<noscript>
+			<p style="color: red;">You need to enable JavaScript to see the list of available languages</p>
+		</noscript>
+
+		<p>Loading languages...</p>
+	</div>
+
+	<script src="https://github.com/xarantolus/bromite-userscripts/releases/latest/download/cosmetic_info.jsonp"></script>
+</body>
+
+</html>
