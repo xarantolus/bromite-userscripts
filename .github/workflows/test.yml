@@ -20,7 +20,7 @@ jobs:
       run: |
         git clone https://github.com/collinbarrett/FilterLists --depth 1 FilterLists
         cd FilterLists
-        docker-compose -f docker-compose/docker-compose.yml -f docker-compose/docker-compose.override.yml up -d
+        docker compose -f docker-compose/docker-compose.yml -f docker-compose/docker-compose.override.yml up -d
 
     - name: "Run generator tests"
       shell: bash
