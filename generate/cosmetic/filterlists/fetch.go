@@ -61,7 +61,6 @@ func fetchJSON(url string, target interface{}) (err error) {
 
 	// I would love to set an honest user-agent, but then we get blocked by Cloudflare
 	req.Header.Set("Accept", "*/*")
-	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
 	req.Header.Set("Accept-Language", "en-US,en;q=0.5")
 	req.Header.Set("Alt-Used", "filterlists.com")
 	req.Header.Set("Connection", "keep-alive")
@@ -73,7 +72,7 @@ func fetchJSON(url string, target interface{}) (err error) {
 	req.Header.Set("Sec-Fetch-Site", "same-origin")
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0")
 
-	resp, err := apiClient.Get(url)
+	resp, err := apiClient.Do(req)
 	if err != nil {
 		return
 	}
