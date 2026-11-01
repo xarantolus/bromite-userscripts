@@ -174,7 +174,9 @@ func processLanguage(lang filterlists.Language, filterLists filterlists.FilterLi
 
 	var filterListURLs []string
 	for _, fl := range filterListsForLang {
-		filterListURLs = append(filterListURLs, fl.PrimaryViewURL)
+		if fl.PrimaryViewURL != "" {
+			filterListURLs = append(filterListURLs, fl.PrimaryViewURL)
+		}
 	}
 
 	filterListURLs = append(filterListURLs, extraLists...)

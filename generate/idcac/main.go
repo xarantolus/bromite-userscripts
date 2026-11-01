@@ -114,7 +114,10 @@ func hashFile(path string) (hex string, err error) {
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
 
-const extensionURL = "https://addons.mozilla.org/en/firefox/addon/i-dont-care-about-cookies/"
+const (
+	extensionSlug = "i-dont-care-about-cookies"
+	extensionURL  = "https://addons.mozilla.org/en/firefox/addon/" + extensionSlug + "/"
+)
 
 func main() {
 	var (
@@ -128,7 +131,7 @@ func main() {
 	}
 	var scriptTemplate = template.Must(template.New("").Parse(string(scriptTemplateContent)))
 
-	extensionInfo, err := amo.ScrapeInfo(extensionURL)
+	extensionInfo, err := amo.ScrapeInfo(extensionSlug)
 	if err != nil {
 		log.Fatalf("scraping idcac extension info: %s\n", err.Error())
 	}

@@ -2,12 +2,11 @@ package amo
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"time"
-
-	"github.com/xarantolus/jsonextract"
 )
 
 type ExtensionFileInfo struct {
@@ -43,23 +42,27 @@ func reqWithTimeout(timeout time.Duration, url string) (resp *http.Response, can
 	return
 }
 
-func ScrapeInfo(extensionURL string) (fi ExtensionFileInfo, err error) {
-	resp, c, err := reqWithTimeout(15*time.Second, extensionURL)
+func ScrapeInfo(slug string) (fi ExtensionFileInfo, err error) {
+	resp, c, err := reqWithTimeout(15*time.Second, "https://addons.mozilla.org/api/v5/addons/addon/"+slug+"/")
 	defer c()
 	if err != nil {
 		return
 	}
 	defer resp.Body.Close()
 
-	err = jsonextract.Objects(resp.Body, []jsonextract.ObjectOption{
-		{
-			Keys: []string{"id", "created", "hash", "permissions", "url"},
-			Callback: jsonextract.Unmarshal(&fi, func() bool {
-				return fi.Size > 0 && len(fi.URL) > 0
-			}),
-		},
-	})
+	var info struct {
+		CurrentVersion struct {
+			File ExtensionFileInfo `json:"file"`
+		} `json:"current_version"`
+	}
+	if err = json.NewDecoder(resp.Body).Decode(&info); err != nil {
+		return
+	}
 
+	fi = info.CurrentVersion.File
+	if fi.URL == "" {
+		err = fmt.Errorf("no download URL found for add-on %q", slug)
+	}
 	return
 }
 

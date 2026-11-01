@@ -23,7 +23,7 @@ type FilterList struct {
 	SyntaxIds      []int  `json:"syntaxIds"`
 	LanguageIds    []int  `json:"languageIds"`
 	TagIds         []int  `json:"tagIds"`
-	PrimaryViewURL string `json:"primaryViewUrl"`
+	PrimaryViewURL string `json:"-"`
 	MaintainerIds  []int  `json:"maintainerIds"`
 }
 
@@ -90,14 +90,52 @@ func fetchJSON(url string, target interface{}) (err error) {
 	return
 }
 
+const apiBase = "https://api.filterlists.com"
+
 // FetchLanguages fetches the list of languages available on FilterLists.com
 func FetchLanguages() (languages []Language, err error) {
-	err = fetchJSON("https://filterlists.com/api/directory/languages", &languages)
+	err = fetchJSON(apiBase+"/languages", &languages)
 	return
+}
+
+const viewURLsData = "https://raw.githubusercontent.com/collinbarrett/FilterLists/main/services/Directory/data/FilterListViewUrl.json"
+
+type viewURL struct {
+	FilterListID  int    `json:"filterListId"`
+	SegmentNumber int    `json:"segmentNumber"`
+	Primariness   int    `json:"primariness"`
+	URL           string `json:"url"`
 }
 
 // FetchFilterLists fetches the list of filter lists available on FilterLists.com
 func FetchFilterLists() (filterLists FilterLists, err error) {
-	err = fetchJSON("https://filterlists.com/api/directory/lists", &filterLists.Lists)
+	err = fetchJSON(apiBase+"/lists", &filterLists.Lists)
+	if err != nil {
+		return
+	}
+
+	var urls []viewURL
+	err = fetchJSON(viewURLsData, &urls)
+	if err != nil {
+		err = fmt.Errorf("fetching filter list view URLs: %w", err)
+		return
+	}
+
+	best := map[int]viewURL{}
+	for _, u := range urls {
+		if u.SegmentNumber > 1 || u.URL == "" {
+			continue
+		}
+		if u.Primariness == 0 {
+			u.Primariness = 1
+		}
+		if b, ok := best[u.FilterListID]; !ok || u.Primariness < b.Primariness {
+			best[u.FilterListID] = u
+		}
+	}
+
+	for i := range filterLists.Lists {
+		filterLists.Lists[i].PrimaryViewURL = best[filterLists.Lists[i].ID].URL
+	}
 	return
 }

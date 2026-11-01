@@ -3,6 +3,7 @@ package util
 import (
 	"bufio"
 	"io"
+	"log"
 	"os"
 	"strings"
 
@@ -11,6 +12,7 @@ import (
 
 func ParseFilterList(f io.Reader) (filters []filter.Rule) {
 	scan := bufio.NewScanner(f)
+	scan.Buffer(make([]byte, 0, 64*1024), 16*1024*1024)
 
 	for scan.Scan() {
 		txt := strings.TrimSpace(scan.Text())
@@ -23,6 +25,9 @@ func ParseFilterList(f io.Reader) (filters []filter.Rule) {
 		if ok {
 			filters = append(filters, filter)
 		}
+	}
+	if err := scan.Err(); err != nil {
+		log.Printf("[Warning] Error while parsing filter list, it may be incomplete: %s\n", err.Error())
 	}
 
 	return filters
