@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Ad Block: Mobile Reddit
 // @namespace    xarantolus
-// @version      0.0.1
-// @description  Removes sponsored posts and ads on Reddit
+// @version      0.0.3
+// @description  Removes sponsored posts, ads and recommended posts on Reddit
 // @author       xarantolus
 // @match        *://reddit.com/*
 // @match        *://*.reddit.com/*
@@ -88,6 +88,43 @@ var scriptFun = function () {
 
   ready("shreddit-ad-post", removeAd("feed ad"));
   ready("shreddit-comments-page-ad", removeAd("comments page ad"));
+
+  // Posts that Reddit injects from communities you are not part of ("recommended" posts). They
+  // carry a "Join" button in the post's community bar and a `recommendation-source` attribute
+  // (seen: "geo_popular_hot_sort", "global_good_visits", "two_hop_time_on_subreddits_6hr"). A
+  // normal subreddit feed has neither (0 of 27 posts in /r/de/), so posts there are left alone.
+  var recommendedPosts =
+    "shreddit-post[recommendation-source]:not([recommendation-source=''])";
+
+  // A subreddit's own page keeps its posts even when you are not joined to it, so only the
+  // aggregate feeds (home, /r/popular, /r/all) are filtered by the Join button.
+  var pathSubreddit = (location.pathname.match(/^\/r\/([^/]+)/i) || [])[1];
+  var aggregateFeed = !pathSubreddit || /^(popular|all)$/i.test(pathSubreddit);
+
+  // The style rules hide a post the moment the marker appears - also for feed items that are loaded
+  // lazily or whose attribute is set after insertion, which the MutationObserver above (childList
+  // only) would not catch. Two separate rules, so a browser without :has() only loses the second.
+  var css = recommendedPosts + " { display: none !important; }";
+  if (aggregateFeed) {
+    css += "\nshreddit-post:has(shreddit-join-button) { display: none !important; }";
+  }
+  var style = document.createElement("style");
+  style.textContent = css;
+  (document.head || document.documentElement).appendChild(style);
+
+  ready(recommendedPosts, removeWithReason("recommended post"));
+
+  // Fallback for browsers without :has(): remove the post a Join button sits in. The observer sees
+  // the button when it is inserted, so lazily rendered cards are caught too.
+  if (aggregateFeed) {
+    ready("shreddit-join-button", function (button) {
+      var post = button.closest("shreddit-post");
+      if (post) {
+        post.remove();
+        log("Removed recommended post (join button)");
+      }
+    });
+  }
 };
 
 
